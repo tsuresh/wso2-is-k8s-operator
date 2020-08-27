@@ -90,6 +90,27 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
+	// Add new config map if not present
+	confMap := &corev1.ConfigMap{}
+	err = r.Get(ctx, types.NamespacedName{Name: "identity-server-conf", Namespace: instance.Namespace}, confMap)
+	if err != nil && errors.IsNotFound(err) {
+		// Define a new deployment
+		svc := r.addConfigMap(instance)
+		log.Info("Creating a new ConfigMap", "ConfigMap.Namespace", svc.Namespace, "ConfigMap.Name", svc.Name)
+		err = r.Create(ctx, svc)
+		if err != nil {
+			log.Error(err, "Failed to create new ConfigMap", "ConfigMap.Namespace", svc.Namespace, "ConfigMap.Name", svc.Name)
+			return ctrl.Result{}, err
+		} else {
+			log.Info("Successfully created new ConfigMap", "ConfigMap.Namespace", svc.Namespace, "ConfigMap.Name", svc.Name)
+		}
+		// ServiceAccount created successfully - return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		log.Error(err, "Failed to get ConfigMap")
+		return ctrl.Result{}, err
+	}
+
 	// Add new service if not present
 	serviceFound := &corev1.Service{}
 	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-service", Namespace: instance.Namespace}, serviceFound)
@@ -217,6 +238,21 @@ func (r *Wso2IsReconciler) addServiceAccount(m wso2v1.Wso2Is) *corev1.ServiceAcc
 	}
 	ctrl.SetControllerReference(&m, svc, r.Scheme)
 	return svc
+}
+
+// addConfigMap adds a new ConfigMap
+func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is) *corev1.ConfigMap {
+	configMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "identity-server-conf",
+			Namespace: m.Namespace,
+		},
+		Data: map[string]string{
+			"deployment.toml": "|-\n    [server]\n    hostname = \"$env{HOST_NAME}\"\n    node_ip = \"$env{NODE_IP}\"\n    # base_path = \"https://$ref{server.hostname}:${carbon.management.port}\"\n    [super_admin]\n    username = \"admin\"\n    password = \"admin\"\n    create_admin_account = true\n    [user_store]\n    type = \"read_write_ldap_unique_id\"\n    connection_url = \"ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}\"\n    connection_name = \"uid=admin,ou=system\"\n    connection_password = \"admin\"\n    base_dn = \"dc=wso2,dc=org\"      #refers the base dn on which the user and group search bases will be generated\n    [database.identity_db]\n    type = \"h2\"\n    url = \"jdbc:h2:./repository/database/WSO2IDENTITY_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000\"\n    username = \"wso2carbon\"\n    password = \"wso2carbon\"\n    [database.shared_db]\n    type = \"h2\"\n    url = \"jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000\"\n    username = \"wso2carbon\"\n    password = \"wso2carbon\"\n    [keystore.primary]\n    file_name = \"wso2carbon.jks\"\n    password = \"wso2carbon\"",
+		},
+	}
+	ctrl.SetControllerReference(&m, configMap, r.Scheme)
+	return configMap
 }
 
 // addServiceAccount adds a new ServiceAccount
