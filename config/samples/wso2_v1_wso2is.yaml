@@ -4,4 +4,5 @@ metadata:
   name: wso2is-sample
 spec:
   # Add fields here
+  namespace: "wso2"
   size: 2

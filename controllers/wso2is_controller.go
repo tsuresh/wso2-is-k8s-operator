@@ -50,7 +50,9 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	// your logic here
 	// Fetch the WSO2IS instance
 	instance := wso2v1.Wso2Is{}
+	instance.Namespace = instance.Spec.Namespace
 
+	// Check if WSO2 custom resource is present
 	err := r.Get(ctx, req.NamespacedName, &instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -62,6 +64,25 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 		// Error reading the object - requeue the request.
 		log.Error(err, "Failed to get WSO2IS Instance")
+		return ctrl.Result{}, err
+	}
+
+	// Add new service account if not present
+	svcFound := &corev1.ServiceAccount{}
+	err = r.Get(ctx, types.NamespacedName{Name: "wso2svc-account", Namespace: instance.Namespace}, svcFound)
+	if err != nil && errors.IsNotFound(err) {
+		// Define a new deployment
+		svc := r.addServiceAccount(instance)
+		log.Info("Creating a new ServiceAccount", "ServiceAccount.Namespace", svc.Namespace, "ServiceAccount.Name", svc.Name)
+		err = r.Create(ctx, svc)
+		if err != nil {
+			log.Error(err, "Failed to create new ServiceAccount", "ServiceAccount.Namespace", svc.Namespace, "ServiceAccount.Name", svc.Name)
+			return ctrl.Result{}, err
+		}
+		// ServiceAccount created successfully - return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		log.Error(err, "Failed to get ServiceAccount")
 		return ctrl.Result{}, err
 	}
 
@@ -138,10 +159,16 @@ func getPodNames(pods []corev1.Pod) []string {
 	return podNames
 }
 
-func (r *Wso2IsReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&wso2v1.Wso2Is{}).
-		Complete(r)
+// addServiceAccount adds a new ServiceAccount
+func (r *Wso2IsReconciler) addServiceAccount(m wso2v1.Wso2Is) *corev1.ServiceAccount {
+	svc := &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "wso2svc-account",
+			Namespace: m.Namespace,
+		},
+	}
+	ctrl.SetControllerReference(&m, svc, r.Scheme)
+	return svc
 }
 
 // New deployment for WSO2IS
@@ -180,4 +207,10 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 	// Set WSO2IS instance as the owner and controller
 	ctrl.SetControllerReference(&m, dep, r.Scheme)
 	return dep
+}
+
+func (r *Wso2IsReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&wso2v1.Wso2Is{}).
+		Complete(r)
 }

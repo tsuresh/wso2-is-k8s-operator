@@ -36,7 +36,7 @@ spec:
         spec:
           description: Wso2IsSpec defines the desired state of Wso2Is
           properties:
-            foo:
+            namespace:
               description: Foo is an example field of Wso2Is. Edit Wso2Is_types.go
                 to remove/update
               type: string
@@ -44,6 +44,7 @@ spec:
               format: int32
               type: integer
           required:
+          - namespace
           - size
           type: object
         status:
