@@ -1,0 +1,7 @@
+apiVersion: wso2.wso2.com/v1
+kind: Wso2Is
+metadata:
+  name: wso2is-sample
+spec:
+  # Add fields here
+  foo: bar
