@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -110,6 +111,27 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
+	// Add Ingress if not present
+	ingressFound := v1beta1.Ingress{}
+	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-ingress", Namespace: instance.Namespace}, &ingressFound)
+	if err != nil && errors.IsNotFound(err) {
+		// Define a new Ingress
+		svc := r.addNewIngress(instance)
+		log.Info("Creating new Ingress", "Ingress.Namespace", svc.Namespace, "Ingress.Name", svc.Name)
+		err = r.Create(ctx, svc)
+		if err != nil {
+			log.Error(err, "Failed to create new Ingress", "Ingress.Namespace", svc.Namespace, "Ingress.Name", svc.Name)
+			return ctrl.Result{}, err
+		} else {
+			log.Info("Successfully created new Ingress", "Ingress.Namespace", svc.Namespace, "Ingress.Name", svc.Name)
+		}
+		// Ingress created successfully - return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		log.Error(err, "Failed to get Ingress")
+		return ctrl.Result{}, err
+	}
+
 	// Check if the deployment already exists, if not create a new one
 	found := &appsv1.Deployment{}
 	err = r.Get(ctx, types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, found)
@@ -195,6 +217,50 @@ func (r *Wso2IsReconciler) addServiceAccount(m wso2v1.Wso2Is) *corev1.ServiceAcc
 	}
 	ctrl.SetControllerReference(&m, svc, r.Scheme)
 	return svc
+}
+
+// addServiceAccount adds a new ServiceAccount
+func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
+	ingress := &v1beta1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "wso2is-ingress",
+			Namespace: m.Namespace,
+			Annotations: map[string]string{
+				"kubernetes.io/ingress.class":                     "nginx",
+				"nginx.ingress.kubernetes.io/backend-protocol":    "HTTPS",
+				"nginx.ingress.kubernetes.io/affinity":            "cookie",
+				"nginx.ingress.kubernetes.io/session-cookie-name": "route",
+				"nginx.ingress.kubernetes.io/session-cookie-hash": "sha1",
+			},
+		},
+		Spec: v1beta1.IngressSpec{
+			TLS: []v1beta1.IngressTLS{
+				{
+					Hosts: []string{"wso2is"},
+				},
+			},
+			Rules: []v1beta1.IngressRule{
+				{
+					Host: "wso2is",
+					IngressRuleValue: v1beta1.IngressRuleValue{
+						HTTP: &v1beta1.HTTPIngressRuleValue{
+							Paths: []v1beta1.HTTPIngressPath{{
+								Path: "/",
+								Backend: v1beta1.IngressBackend{
+									ServiceName: "wso2is-service",
+									ServicePort: intstr.IntOrString{
+										IntVal: 9443,
+									},
+								},
+							}},
+						},
+					},
+				},
+			},
+		},
+	}
+	ctrl.SetControllerReference(&m, ingress, r.Scheme)
+	return ingress
 }
 
 // addServiceAccount adds a new ServiceAccount
