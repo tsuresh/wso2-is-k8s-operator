@@ -21,6 +21,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"reflect"
 
 	"github.com/go-logr/logr"
@@ -85,6 +86,27 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
 		log.Error(err, "Failed to get ServiceAccount")
+		return ctrl.Result{}, err
+	}
+
+	// Add new service if not present
+	serviceFound := &corev1.Service{}
+	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-service", Namespace: instance.Namespace}, serviceFound)
+	if err != nil && errors.IsNotFound(err) {
+		// Define a new deployment
+		svc := r.addNewService(instance)
+		log.Info("Creating a new Service", "Service.Namespace", svc.Namespace, "Service.Name", svc.Name)
+		err = r.Create(ctx, svc)
+		if err != nil {
+			log.Error(err, "Failed to create new Service", "Service.Namespace", svc.Namespace, "Service.Name", svc.Name)
+			return ctrl.Result{}, err
+		} else {
+			log.Info("Successfully created new Service", "Service.Namespace", svc.Namespace, "Service.Name", svc.Name)
+		}
+		// ServiceAccount created successfully - return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		log.Error(err, "Failed to get Service")
 		return ctrl.Result{}, err
 	}
 
@@ -169,6 +191,50 @@ func (r *Wso2IsReconciler) addServiceAccount(m wso2v1.Wso2Is) *corev1.ServiceAcc
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2svc-account",
 			Namespace: m.Namespace,
+		},
+	}
+	ctrl.SetControllerReference(&m, svc, r.Scheme)
+	return svc
+}
+
+// addServiceAccount adds a new ServiceAccount
+func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
+	serviceType := corev1.ServiceTypeNodePort
+	if m.Spec.ServiceType == "loadbalancer" {
+		serviceType = corev1.ServiceTypeLoadBalancer
+	} else if m.Spec.ServiceType == "clusterIP" {
+		serviceType = corev1.ServiceTypeClusterIP
+	} else if m.Spec.ServiceType == "externalName" {
+		serviceType = corev1.ServiceTypeExternalName
+	}
+	svc := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "wso2is-service",
+			Namespace: m.Namespace,
+		},
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
+				Name:     "servlet-http",
+				Protocol: "TCP",
+				Port:     9763,
+				TargetPort: intstr.IntOrString{
+					IntVal: 9763,
+				},
+			}, {
+				Name:     "servlet-https",
+				Protocol: "TCP",
+				Port:     9443,
+				TargetPort: intstr.IntOrString{
+					IntVal: 9443,
+				},
+			}},
+			Selector: map[string]string{
+				"deployment": m.Name,
+				"app":        "wso2is",
+				"monitoring": "jmx",
+				"pod":        "wso2is-sample",
+			},
+			Type: serviceType,
 		},
 	}
 	ctrl.SetControllerReference(&m, svc, r.Scheme)
