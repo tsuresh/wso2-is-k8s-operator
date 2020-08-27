@@ -30,7 +30,7 @@ type Wso2IsSpec struct {
 
 	// Foo is an example field of Wso2Is. Edit Wso2Is_types.go to remove/update
 	Namespace   string `json:"namespace"`
-	Size        int32  `json:"size"`
+	Size        int32  `json:"replicas"`
 	ServiceType string `json:"servicetype"`
 }
 

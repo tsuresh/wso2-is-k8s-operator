@@ -40,12 +40,15 @@ spec:
               description: Foo is an example field of Wso2Is. Edit Wso2Is_types.go
                 to remove/update
               type: string
-            size:
+            replicas:
               format: int32
               type: integer
+            servicetype:
+              type: string
           required:
           - namespace
-          - size
+          - replicas
+          - servicetype
           type: object
         status:
           description: Wso2IsStatus defines the observed state of Wso2Is
