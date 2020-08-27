@@ -4,4 +4,4 @@ metadata:
   name: wso2is-sample
 spec:
   # Add fields here
-  foo: bar
+  size: 2

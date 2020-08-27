@@ -61,7 +61,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
-		log.Error(err, "Failed to get Memcached")
+		log.Error(err, "Failed to get WSO2IS Instance")
 		return ctrl.Result{}, err
 	}
 
@@ -70,7 +70,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	err = r.Get(ctx, types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
-		dep := r.deploymentForMemcached(instance)
+		dep := r.deploymentForWso2Is(instance)
 		log.Info("Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
 		err = r.Create(ctx, dep)
 		if err != nil {
@@ -97,15 +97,15 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{Requeue: true}, nil
 	}
 
-	// Update the Memcached status with the pod names
-	// List the pods for this memcached's deployment
+	// Update the IS status with the pod names
+	// List the pods for this IS's deployment
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{
 		client.InNamespace(instance.Namespace),
 		client.MatchingLabels(labelsForWso2IS(instance.Name)),
 	}
 	if err = r.List(ctx, podList, listOpts...); err != nil {
-		log.Error(err, "Failed to list pods", "Memcached.Namespace", instance.Namespace, "Memcached.Name", instance.Name)
+		log.Error(err, "Failed to list pods", "WSO2IS.Namespace", instance.Namespace, "WSO2IS.Name", instance.Name)
 		return ctrl.Result{}, err
 	}
 	podNames := getPodNames(podList.Items)
@@ -115,7 +115,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		instance.Status.Nodes = podNames
 		err := r.Status().Update(ctx, &instance)
 		if err != nil {
-			log.Error(err, "Failed to update Memcached status")
+			log.Error(err, "Failed to update WSO2IS status")
 			return ctrl.Result{}, err
 		}
 	}
@@ -124,7 +124,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 }
 
 // labelsForWso2IS returns the labels for selecting the resources
-// belonging to the given memcached CR name.
+// belonging to the given WSO2IS CR name.
 func labelsForWso2IS(name string) map[string]string {
 	return map[string]string{"app": "wso2is", "wso2is_cr": name}
 }
@@ -145,7 +145,7 @@ func (r *Wso2IsReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // New deployment for WSO2IS
-func (r *Wso2IsReconciler) deploymentForMemcached(m wso2v1.Wso2Is) *appsv1.Deployment {
+func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployment {
 	ls := labelsForWso2IS(m.Name)
 	replicas := m.Spec.Size
 
@@ -165,19 +165,19 @@ func (r *Wso2IsReconciler) deploymentForMemcached(m wso2v1.Wso2Is) *appsv1.Deplo
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image:   "memcached:1.4.36-alpine",
-						Name:    "memcached",
-						Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
+						Image: "wso2/wso2is",
+						Name:  "wso2is",
+						//Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
 						Ports: []corev1.ContainerPort{{
-							ContainerPort: 11211,
-							Name:          "memcached",
+							ContainerPort: 9443,
+							Name:          "wso2is",
 						}},
 					}},
 				},
 			},
 		},
 	}
-	// Set Memcached instance as the owner and controller
+	// Set WSO2IS instance as the owner and controller
 	ctrl.SetControllerReference(&m, dep, r.Scheme)
 	return dep
 }
