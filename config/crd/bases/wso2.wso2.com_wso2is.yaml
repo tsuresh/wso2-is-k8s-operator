@@ -38,6 +38,8 @@ spec:
           properties:
             configurations:
               type: string
+            containerimage:
+              type: string
             namespace:
               description: Foo is an example field of Wso2Is. Edit Wso2Is_types.go
                 to remove/update
@@ -49,6 +51,7 @@ spec:
               type: string
           required:
           - configurations
+          - containerimage
           - namespace
           - replicas
           - servicetype

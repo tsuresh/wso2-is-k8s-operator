@@ -71,7 +71,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Add new namespace if not present
 	namespaceFound := &corev1.Namespace{}
-	err = r.Get(ctx, types.NamespacedName{Name: instance.Spec.Namespace, Namespace: instance.Namespace}, namespaceFound)
+	err = r.Get(ctx, types.NamespacedName{Name: instance.Spec.Namespace}, namespaceFound)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		svc := r.addNamespace(instance)
@@ -271,7 +271,7 @@ func (r *Wso2IsReconciler) addServiceAccount(m wso2v1.Wso2Is) *corev1.ServiceAcc
 	svc := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2svc-account",
-			Namespace: m.Namespace,
+			Namespace: m.Spec.Namespace,
 		},
 	}
 	ctrl.SetControllerReference(&m, svc, r.Scheme)
@@ -283,7 +283,7 @@ func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is) *corev1.ConfigMap {
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "identity-server-conf",
-			Namespace: m.Namespace,
+			Namespace: m.Spec.Namespace,
 		},
 		Data: map[string]string{
 			"deployment.toml": m.Spec.Configurations,
@@ -298,7 +298,7 @@ func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
 	ingress := &v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2is-ingress",
-			Namespace: m.Namespace,
+			Namespace: m.Spec.Namespace,
 			Annotations: map[string]string{
 				"kubernetes.io/ingress.class":                     "nginx",
 				"nginx.ingress.kubernetes.io/backend-protocol":    "HTTPS",
@@ -350,7 +350,7 @@ func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2is-service",
-			Namespace: m.Namespace,
+			Namespace: m.Spec.Namespace,
 		},
 		Spec: corev1.ServiceSpec{
 			Ports: []corev1.ServicePort{{
@@ -385,13 +385,11 @@ func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
 func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployment {
 	ls := labelsForWso2IS()
 	replicas := m.Spec.Size
-
 	runasuser := int64(802)
-
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      m.Name,
-			Namespace: m.Namespace,
+			Namespace: m.Spec.Namespace,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
