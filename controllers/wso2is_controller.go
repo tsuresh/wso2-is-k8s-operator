@@ -20,7 +20,6 @@ import (
 	"context"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/extensions/v1beta1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -213,7 +212,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{
 		client.InNamespace(instance.Namespace),
-		client.MatchingLabels(labelsForWso2IS()),
+		client.MatchingLabels(labelsForWso2IS(instance.Name)),
 	}
 	if err = r.List(ctx, podList, listOpts...); err != nil {
 		log.Error(err, "Failed to list pods", "WSO2IS.Namespace", instance.Spec.Namespace, "WSO2IS.Name", instance.Name)
@@ -236,12 +235,12 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 // labelsForWso2IS returns the labels for selecting the resources
 // belonging to the given WSO2IS CR name.
-func labelsForWso2IS() map[string]string {
+func labelsForWso2IS(depname string) map[string]string {
 	return map[string]string{
-		"deployment": "wso2is",
-		"app":        "wso2is",
+		"deployment": depname,
+		"app":        depname,
 		"monitoring": "jmx",
-		"pod":        "wso2is",
+		"pod":        depname,
 	}
 }
 
@@ -259,7 +258,7 @@ func (r *Wso2IsReconciler) addNamespace(m wso2v1.Wso2Is) corev1.Namespace {
 	namespace := corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   m.Spec.Namespace,
-			Labels: labelsForWso2IS(),
+			Labels: labelsForWso2IS(m.Name),
 		},
 	}
 	ctrl.SetControllerReference(&m, &namespace, r.Scheme)
@@ -368,13 +367,8 @@ func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
 					IntVal: 9443,
 				},
 			}},
-			Selector: map[string]string{
-				"deployment": m.Name,
-				"app":        "wso2is",
-				"monitoring": "jmx",
-				"pod":        "wso2is",
-			},
-			Type: serviceType,
+			Selector: labelsForWso2IS(m.Name),
+			Type:     serviceType,
 		},
 	}
 	ctrl.SetControllerReference(&m, svc, r.Scheme)
@@ -383,7 +377,7 @@ func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
 
 // New deployment for WSO2IS
 func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployment {
-	ls := labelsForWso2IS()
+	ls := labelsForWso2IS(m.Name)
 	replicas := m.Spec.Size
 	runasuser := int64(802)
 	dep := &appsv1.Deployment{
@@ -432,6 +426,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 							Name:  "HOST_NAME",
 							Value: "wso2is",
 						}},
+						/* @TODO Please uncomment for live production
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("1Gi"),
@@ -442,6 +437,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 								corev1.ResourceMemory: resource.MustParse("2000m"),
 							},
 						},
+						*/
 						VolumeMounts: []corev1.VolumeMount{{
 							Name:        "identity-server-conf",
 							MountPath:   "/home/wso2carbon/wso2-config-volume/repository/conf/deployment.toml",
