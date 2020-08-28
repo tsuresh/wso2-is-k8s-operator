@@ -53,7 +53,6 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	// your logic here
 	// Fetch the WSO2IS instance
 	instance := wso2v1.Wso2Is{}
-	instance.Namespace = instance.Spec.Namespace
 
 	// Check if WSO2 custom resource is present
 	err := r.Get(ctx, req.NamespacedName, &instance)
@@ -70,9 +69,30 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
+	// Add new namespace if not present
+	namespaceFound := &corev1.Namespace{}
+	err = r.Get(ctx, types.NamespacedName{Name: instance.Spec.Namespace, Namespace: instance.Namespace}, namespaceFound)
+	if err != nil && errors.IsNotFound(err) {
+		// Define a new deployment
+		svc := r.addNamespace(instance)
+		log.Info("Creating a new NameSpace", "NameSpace.Namespace", svc.Namespace, "NameSpace.Name", svc.Name)
+		err = r.Create(ctx, &svc)
+		if err != nil {
+			log.Error(err, "Failed to create new NameSpace", "NameSpace.Namespace", svc.Namespace, "NameSpace.Name", svc.Name)
+			return ctrl.Result{}, err
+		} else {
+			log.Info("Successfully created new NameSpace", "NameSpace.Namespace", svc.Namespace, "NameSpace.Name", svc.Name)
+		}
+		// NameSpace created successfully - return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		log.Error(err, "Failed to get NameSpace")
+		return ctrl.Result{}, err
+	}
+
 	// Add new service account if not present
 	svcFound := &corev1.ServiceAccount{}
-	err = r.Get(ctx, types.NamespacedName{Name: "wso2svc-account", Namespace: instance.Namespace}, svcFound)
+	err = r.Get(ctx, types.NamespacedName{Name: "wso2svc-account", Namespace: instance.Spec.Namespace}, svcFound)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		svc := r.addServiceAccount(instance)
@@ -93,7 +113,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Add new config map if not present
 	confMap := &corev1.ConfigMap{}
-	err = r.Get(ctx, types.NamespacedName{Name: "identity-server-conf", Namespace: instance.Namespace}, confMap)
+	err = r.Get(ctx, types.NamespacedName{Name: "identity-server-conf", Namespace: instance.Spec.Namespace}, confMap)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		svc := r.addConfigMap(instance)
@@ -114,7 +134,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Add new service if not present
 	serviceFound := &corev1.Service{}
-	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-service", Namespace: instance.Namespace}, serviceFound)
+	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-service", Namespace: instance.Spec.Namespace}, serviceFound)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		svc := r.addNewService(instance)
@@ -135,7 +155,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Add Ingress if not present
 	ingressFound := v1beta1.Ingress{}
-	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-ingress", Namespace: instance.Namespace}, &ingressFound)
+	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-ingress", Namespace: instance.Spec.Namespace}, &ingressFound)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new Ingress
 		svc := r.addNewIngress(instance)
@@ -156,7 +176,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Check if the deployment already exists, if not create a new one
 	found := &appsv1.Deployment{}
-	err = r.Get(ctx, types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, found)
+	err = r.Get(ctx, types.NamespacedName{Name: instance.Name, Namespace: instance.Spec.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		dep := r.deploymentForWso2Is(instance)
@@ -193,10 +213,10 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{
 		client.InNamespace(instance.Namespace),
-		client.MatchingLabels(labelsForWso2IS(instance.Name)),
+		client.MatchingLabels(labelsForWso2IS()),
 	}
 	if err = r.List(ctx, podList, listOpts...); err != nil {
-		log.Error(err, "Failed to list pods", "WSO2IS.Namespace", instance.Namespace, "WSO2IS.Name", instance.Name)
+		log.Error(err, "Failed to list pods", "WSO2IS.Namespace", instance.Spec.Namespace, "WSO2IS.Name", instance.Name)
 		return ctrl.Result{}, err
 	}
 	podNames := getPodNames(podList.Items)
@@ -216,7 +236,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 // labelsForWso2IS returns the labels for selecting the resources
 // belonging to the given WSO2IS CR name.
-func labelsForWso2IS(name string) map[string]string {
+func labelsForWso2IS() map[string]string {
 	return map[string]string{
 		"deployment": "wso2is",
 		"app":        "wso2is",
@@ -232,6 +252,18 @@ func getPodNames(pods []corev1.Pod) []string {
 		podNames = append(podNames, pod.Name)
 	}
 	return podNames
+}
+
+// addNamespace adds a new NameSpace
+func (r *Wso2IsReconciler) addNamespace(m wso2v1.Wso2Is) corev1.Namespace {
+	namespace := corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   m.Spec.Namespace,
+			Labels: labelsForWso2IS(),
+		},
+	}
+	ctrl.SetControllerReference(&m, &namespace, r.Scheme)
+	return namespace
 }
 
 // addServiceAccount adds a new ServiceAccount
@@ -261,7 +293,7 @@ func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is) *corev1.ConfigMap {
 	return configMap
 }
 
-// addServiceAccount adds a new ServiceAccount
+// addNewIngress adds a new Ingress Controller
 func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
 	ingress := &v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
@@ -305,7 +337,7 @@ func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
 	return ingress
 }
 
-// addServiceAccount adds a new ServiceAccount
+// addNewService adds a new Service
 func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
 	serviceType := corev1.ServiceTypeNodePort
 	if m.Spec.ServiceType == "loadbalancer" {
@@ -351,7 +383,7 @@ func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
 
 // New deployment for WSO2IS
 func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployment {
-	ls := labelsForWso2IS(m.Name)
+	ls := labelsForWso2IS()
 	replicas := m.Spec.Size
 
 	runasuser := int64(802)
