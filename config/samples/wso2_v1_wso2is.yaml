@@ -6,6 +6,7 @@ spec:
   namespace: wso2
   replicas: 2
   servicetype: nodeport
+  containerimage: wso2/wso2is:5.10.0
   configurations: |-
     [server]
     hostname = "$env{HOST_NAME}"

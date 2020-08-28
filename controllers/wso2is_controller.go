@@ -20,6 +20,7 @@ import (
 	"context"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -216,7 +217,12 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 // labelsForWso2IS returns the labels for selecting the resources
 // belonging to the given WSO2IS CR name.
 func labelsForWso2IS(name string) map[string]string {
-	return map[string]string{"app": "wso2is", "wso2is_cr": name}
+	return map[string]string{
+		"deployment": "wso2is",
+		"app":        "wso2is",
+		"monitoring": "jmx",
+		"pod":        "wso2is",
+	}
 }
 
 // getPodNames returns the pod names of the array of pods passed in
@@ -348,6 +354,8 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 	ls := labelsForWso2IS(m.Name)
 	replicas := m.Spec.Size
 
+	runasuser := int64(802)
+
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      m.Name,
@@ -363,15 +371,104 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
+					Volumes: []corev1.Volume{{
+						Name: "identity-server-conf",
+						VolumeSource: corev1.VolumeSource{
+							ConfigMap: &corev1.ConfigMapVolumeSource{
+								LocalObjectReference: corev1.LocalObjectReference{
+									Name: "identity-server-conf",
+								},
+							},
+						},
+					}},
 					Containers: []corev1.Container{{
-						Image: "wso2/wso2is",
 						Name:  "wso2is",
-						//Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
+						Image: m.Spec.ContainerImage,
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 9443,
-							Name:          "wso2is",
+							Protocol:      "TCP",
+						}, {
+							ContainerPort: 9763,
+							Protocol:      "TCP",
 						}},
+						Env: []corev1.EnvVar{{
+							Name: "NODE_IP",
+							ValueFrom: &corev1.EnvVarSource{
+								FieldRef: &corev1.ObjectFieldSelector{
+									FieldPath: "status.podIP",
+								},
+							},
+						}, {
+							Name:  "HOST_NAME",
+							Value: "wso2is",
+						}},
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("1Gi"),
+								corev1.ResourceMemory: resource.MustParse("1000m"),
+							},
+							Limits: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("2Gi"),
+								corev1.ResourceMemory: resource.MustParse("2000m"),
+							},
+						},
+						VolumeMounts: []corev1.VolumeMount{{
+							Name:        "identity-server-conf",
+							MountPath:   "/home/wso2carbon/wso2-config-volume/repository/conf/deployment.toml",
+							SubPathExpr: "deployment.toml",
+						}},
+						LivenessProbe: &corev1.Probe{
+							Handler: corev1.Handler{
+								Exec: &corev1.ExecAction{
+									Command: []string{"/bin/sh", "-c", "nc -z localhost 9443"},
+								},
+							},
+							InitialDelaySeconds: 250,
+							PeriodSeconds:       10,
+						},
+						ReadinessProbe: &corev1.Probe{
+							Handler: corev1.Handler{
+								Exec: &corev1.ExecAction{
+									Command: []string{"/bin/sh", "-c", "nc -z localhost 9443"},
+								},
+							},
+							InitialDelaySeconds: 250,
+							PeriodSeconds:       10,
+						},
+						Lifecycle: &corev1.Lifecycle{
+							PreStop: &corev1.Handler{
+								Exec: &corev1.ExecAction{
+									Command: []string{
+										"sh",
+										"-c",
+										"${WSO2_SERVER_HOME}/bin/wso2server.sh stop",
+									},
+								},
+							},
+						},
+						ImagePullPolicy: "IfNotPresent",
+						SecurityContext: &corev1.SecurityContext{
+							RunAsUser: &runasuser,
+						},
 					}},
+					ServiceAccountName: "wso2svc-account",
+					HostAliases: []corev1.HostAlias{{
+						IP:        "127.0.0.1",
+						Hostnames: []string{"wso2is"},
+					}},
+				},
+			},
+			Strategy: appsv1.DeploymentStrategy{
+				Type: "RollingUpdate",
+				RollingUpdate: &appsv1.RollingUpdateDeployment{
+					MaxUnavailable: &intstr.IntOrString{
+						Type:   intstr.Int,
+						IntVal: 0,
+					},
+					MaxSurge: &intstr.IntOrString{
+						Type:   intstr.Int,
+						IntVal: 1,
+					},
 				},
 			},
 			MinReadySeconds: 30,

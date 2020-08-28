@@ -33,6 +33,7 @@ type Wso2IsSpec struct {
 	Size           int32  `json:"replicas"`
 	ServiceType    string `json:"servicetype"`
 	Configurations string `json:"configurations"`
+	ContainerImage string `json:"containerimage"`
 }
 
 // Wso2IsStatus defines the observed state of Wso2Is
