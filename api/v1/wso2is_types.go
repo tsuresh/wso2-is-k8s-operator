@@ -29,9 +29,10 @@ type Wso2IsSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Wso2Is. Edit Wso2Is_types.go to remove/update
-	Namespace   string `json:"namespace"`
-	Size        int32  `json:"replicas"`
-	ServiceType string `json:"servicetype"`
+	Namespace      string `json:"namespace"`
+	Size           int32  `json:"replicas"`
+	ServiceType    string `json:"servicetype"`
+	Configurations string `json:"configurations"`
 }
 
 // Wso2IsStatus defines the observed state of Wso2Is

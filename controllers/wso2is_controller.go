@@ -248,7 +248,7 @@ func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is) *corev1.ConfigMap {
 			Namespace: m.Namespace,
 		},
 		Data: map[string]string{
-			"deployment.toml": "|-\n    [server]\n    hostname = \"$env{HOST_NAME}\"\n    node_ip = \"$env{NODE_IP}\"\n    # base_path = \"https://$ref{server.hostname}:${carbon.management.port}\"\n    [super_admin]\n    username = \"admin\"\n    password = \"admin\"\n    create_admin_account = true\n    [user_store]\n    type = \"read_write_ldap_unique_id\"\n    connection_url = \"ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}\"\n    connection_name = \"uid=admin,ou=system\"\n    connection_password = \"admin\"\n    base_dn = \"dc=wso2,dc=org\"      #refers the base dn on which the user and group search bases will be generated\n    [database.identity_db]\n    type = \"h2\"\n    url = \"jdbc:h2:./repository/database/WSO2IDENTITY_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000\"\n    username = \"wso2carbon\"\n    password = \"wso2carbon\"\n    [database.shared_db]\n    type = \"h2\"\n    url = \"jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000\"\n    username = \"wso2carbon\"\n    password = \"wso2carbon\"\n    [keystore.primary]\n    file_name = \"wso2carbon.jks\"\n    password = \"wso2carbon\"",
+			"deployment.toml": m.Spec.Configurations,
 		},
 	}
 	ctrl.SetControllerReference(&m, configMap, r.Scheme)
@@ -334,7 +334,7 @@ func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
 				"deployment": m.Name,
 				"app":        "wso2is",
 				"monitoring": "jmx",
-				"pod":        "wso2is-sample",
+				"pod":        "wso2is",
 			},
 			Type: serviceType,
 		},
@@ -374,6 +374,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 					}},
 				},
 			},
+			MinReadySeconds: 30,
 		},
 	}
 	// Set WSO2IS instance as the owner and controller
