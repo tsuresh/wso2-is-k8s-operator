@@ -40,6 +40,12 @@ spec:
               type: string
             containerimage:
               type: string
+            initialDelaySeconds:
+              format: int32
+              type: integer
+            periodSeconds:
+              format: int32
+              type: integer
             replicas:
               description: Foo is an example field of Wso2Is. Edit Wso2Is_types.go
                 to remove/update
@@ -50,6 +56,8 @@ spec:
           required:
           - configurations
           - containerimage
+          - initialDelaySeconds
+          - periodSeconds
           - replicas
           - servicetype
           type: object

@@ -6,6 +6,8 @@ spec:
   replicas: 1
   servicetype: nodeport
   containerimage: wso2/wso2is:5.10.0
+  initialDelaySeconds: 250
+  periodSeconds: 10
   configurations: |-
     [server]
     hostname = "$env{HOST_NAME}"
