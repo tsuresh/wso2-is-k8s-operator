@@ -3,7 +3,6 @@ kind: Wso2Is
 metadata:
   name: wso2is-operator
 spec:
-  namespace: wso2
   replicas: 1
   servicetype: nodeport
   containerimage: wso2/wso2is:5.10.0
