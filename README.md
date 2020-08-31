@@ -13,7 +13,7 @@ Clone the repository by running the following command
 
     git clone https://github.com/tsuresh/wso2-is-k8s-operator.git
 
-Run the following command to install Independence 
+Run the following command to install dependancies 
 
     make install
 
