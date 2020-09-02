@@ -295,7 +295,7 @@ func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is) *corev1.ConfigMap {
 // addNewIngress adds a new Ingress Controller
 func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
 	ingress := &v1beta1.Ingress{
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{phot
 			Name:      "wso2is-ingress",
 			Namespace: "wso2",
 			Annotations: map[string]string{
