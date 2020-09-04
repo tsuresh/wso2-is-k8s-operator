@@ -70,7 +70,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Add new namespace if not present
 	namespaceFound := &corev1.Namespace{}
-	err = r.Get(ctx, types.NamespacedName{Name: "wso2"}, namespaceFound)
+	err = r.Get(ctx, types.NamespacedName{Name: instance.Namespace}, namespaceFound)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		svc := r.addNamespace(instance)
@@ -91,7 +91,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Add new service account if not present
 	svcFound := &corev1.ServiceAccount{}
-	err = r.Get(ctx, types.NamespacedName{Name: "wso2svc-account", Namespace: "wso2"}, svcFound)
+	err = r.Get(ctx, types.NamespacedName{Name: "wso2svc-account", Namespace: instance.Namespace}, svcFound)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		svc := r.addServiceAccount(instance)
@@ -112,7 +112,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Add new config map if not present
 	confMap := &corev1.ConfigMap{}
-	err = r.Get(ctx, types.NamespacedName{Name: "identity-server-conf", Namespace: "wso2"}, confMap)
+	err = r.Get(ctx, types.NamespacedName{Name: "identity-server-conf", Namespace: instance.Namespace}, confMap)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		svc := r.addConfigMap(instance)
@@ -133,7 +133,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Add new service if not present
 	serviceFound := &corev1.Service{}
-	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-service", Namespace: "wso2"}, serviceFound)
+	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-service", Namespace: instance.Namespace}, serviceFound)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		svc := r.addNewService(instance)
@@ -154,7 +154,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Add Ingress if not present
 	ingressFound := v1beta1.Ingress{}
-	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-ingress", Namespace: "wso2"}, &ingressFound)
+	err = r.Get(ctx, types.NamespacedName{Name: "wso2is-ingress", Namespace: instance.Namespace}, &ingressFound)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new Ingress
 		svc := r.addNewIngress(instance)
@@ -175,7 +175,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Check if the deployment already exists, if not create a new one
 	found := &appsv1.Deployment{}
-	err = r.Get(ctx, types.NamespacedName{Name: instance.Name, Namespace: "wso2"}, found)
+	err = r.Get(ctx, types.NamespacedName{Name: instance.Name, Namespace: instance.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
 		dep := r.deploymentForWso2Is(instance)
@@ -215,7 +215,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		client.MatchingLabels(labelsForWso2IS(instance.Name)),
 	}
 	if err = r.List(ctx, podList, listOpts...); err != nil {
-		log.Error(err, "Failed to list pods", "WSO2IS.Namespace", "wso2", "WSO2IS.Name", instance.Name)
+		log.Error(err, "Failed to list pods", "WSO2IS.Namespace", instance.Namespace, "WSO2IS.Name", instance.Name)
 		return ctrl.Result{}, err
 	}
 	podNames := getPodNames(podList.Items)
@@ -257,7 +257,7 @@ func getPodNames(pods []corev1.Pod) []string {
 func (r *Wso2IsReconciler) addNamespace(m wso2v1.Wso2Is) corev1.Namespace {
 	namespace := corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   "wso2",
+			Name:   m.Namespace,
 			Labels: labelsForWso2IS(m.Name),
 		},
 	}
@@ -270,7 +270,7 @@ func (r *Wso2IsReconciler) addServiceAccount(m wso2v1.Wso2Is) *corev1.ServiceAcc
 	svc := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2svc-account",
-			Namespace: "wso2",
+			Namespace: m.Namespace,
 		},
 	}
 	ctrl.SetControllerReference(&m, svc, r.Scheme)
@@ -282,7 +282,7 @@ func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is) *corev1.ConfigMap {
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "identity-server-conf",
-			Namespace: "wso2",
+			Namespace: m.Namespace,
 		},
 		Data: map[string]string{
 			"deployment.toml": m.Spec.Configurations,
@@ -297,7 +297,7 @@ func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
 	ingress := &v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2is-ingress",
-			Namespace: "wso2",
+			Namespace: m.Namespace,
 			Annotations: map[string]string{
 				"kubernetes.io/ingress.class":                     "nginx",
 				"nginx.ingress.kubernetes.io/backend-protocol":    "HTTPS",
@@ -349,7 +349,7 @@ func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2is-service",
-			Namespace: "wso2",
+			Namespace: m.Namespace,
 		},
 		Spec: corev1.ServiceSpec{
 			Ports: []corev1.ServicePort{{
@@ -383,7 +383,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      m.Name,
-			Namespace: "wso2",
+			Namespace: m.Namespace,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
