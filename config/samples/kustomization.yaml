@@ -1,4 +1,5 @@
 ## Append samples you want in your CSV to this file as resources ##
 resources:
 - wso2_v1_wso2is.yaml
+- wso2_v1_mysql.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples
