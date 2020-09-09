@@ -5,7 +5,7 @@ metadata:
 spec:
   replicas: 1
   servicetype: nodeport
-  containerimage: wso2/wso2is:5.10.0
+  containerimage: wso2/wso2ideletes:5.10.0
   initialDelaySeconds: 250
   periodSeconds: 10
   configurations: |-
