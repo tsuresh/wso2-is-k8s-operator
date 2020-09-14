@@ -1,0 +1,7 @@
+apiVersion: wso2.wso2.com/v1
+kind: MySQL
+metadata:
+  name: mysql-sample
+spec:
+  # Add fields here
+  foo: bar
