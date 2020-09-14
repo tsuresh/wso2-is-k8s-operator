@@ -36,10 +36,33 @@ spec:
         spec:
           description: Wso2IsSpec defines the desired state of Wso2Is
           properties:
-            configurations:
-              type: string
-            containerimage:
-              type: string
+            configs:
+              properties:
+                dbIdentityDb:
+                  additionalProperties:
+                    type: string
+                  type: object
+                dbSharedDb:
+                  additionalProperties:
+                    type: string
+                  type: object
+                keystorePrimary:
+                  additionalProperties:
+                    type: string
+                  type: object
+                server:
+                  additionalProperties:
+                    type: string
+                  type: object
+                superadmin:
+                  additionalProperties:
+                    type: string
+                  type: object
+                userstore:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
             initialDelaySeconds:
               format: int32
               type: integer
@@ -51,15 +74,10 @@ spec:
                 to remove/update
               format: int32
               type: integer
-            servicetype:
-              type: string
           required:
-          - configurations
-          - containerimage
           - initialDelaySeconds
           - periodSeconds
           - replicas
-          - servicetype
           type: object
         status:
           description: Wso2IsStatus defines the observed state of Wso2Is

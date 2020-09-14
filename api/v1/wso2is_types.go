@@ -29,10 +29,19 @@ type Wso2IsSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Wso2Is. Edit Wso2Is_types.go to remove/update
-	Size                int32  `json:"replicas"`
-	Configurations      string `json:"configurations"`
-	InitialDelaySeconds int32  `json:"initialDelaySeconds"`
-	PeriodSeconds       int32  `json:"periodSeconds"`
+	Size                int32       `json:"replicas"`
+	Configurations      TomlConfigs `json:"configs,omitempty"`
+	InitialDelaySeconds int32       `json:"initialDelaySeconds"`
+	PeriodSeconds       int32       `json:"periodSeconds"`
+}
+
+type TomlConfigs struct {
+	Server          map[string]string `json:"server,omitempty"`
+	SuperAdmin      map[string]string `json:"superadmin,omitempty"`
+	UserStore       map[string]string `json:"userstore,omitempty"`
+	DbIdentityDb    map[string]string `json:"dbIdentityDb,omitempty"`
+	DbSharedDb      map[string]string `json:"dbSharedDb,omitempty"`
+	KeyStorePrimary map[string]string `json:"keystorePrimary,omitempty"`
 }
 
 // Wso2IsStatus defines the observed state of Wso2Is
