@@ -18,7 +18,9 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/naoina/toml"
+	"io/ioutil"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -303,7 +305,15 @@ func getTomlConfig(configurations wso2v1.Configurations) string {
 	if err := toml.NewEncoder(f).Encode(configurations); err != nil {
 		panic(err)
 	}
-	return "write success" //read the file and get config
+	return readFile("deployment.toml") //read the file and get config
+}
+
+func readFile(s string) string {
+	data, err := ioutil.ReadFile(s)
+	if err != nil {
+		fmt.Println("File reading error", err)
+	}
+	return string(data)
 }
 
 // convert configs to TOML here
