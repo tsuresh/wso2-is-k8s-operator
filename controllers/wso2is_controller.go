@@ -338,14 +338,6 @@ func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
 
 // addNewService adds a new Service
 func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
-	serviceType := corev1.ServiceTypeNodePort
-	if m.Spec.ServiceType == "loadbalancer" {
-		serviceType = corev1.ServiceTypeLoadBalancer
-	} else if m.Spec.ServiceType == "clusterIP" {
-		serviceType = corev1.ServiceTypeClusterIP
-	} else if m.Spec.ServiceType == "externalName" {
-		serviceType = corev1.ServiceTypeExternalName
-	}
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2is-service",
@@ -368,7 +360,7 @@ func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
 				},
 			}},
 			Selector: labelsForWso2IS(m.Name),
-			Type:     serviceType,
+			Type:     corev1.ServiceTypeLoadBalancer,
 		},
 	}
 	ctrl.SetControllerReference(&m, svc, r.Scheme)
@@ -407,7 +399,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 					}},
 					Containers: []corev1.Container{{
 						Name:  "wso2is",
-						Image: m.Spec.ContainerImage,
+						Image: "wso2/wso2is:5.10.0",
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 9443,
 							Protocol:      "TCP",
