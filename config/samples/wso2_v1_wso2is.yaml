@@ -8,36 +8,31 @@ spec:
   containerimage: wso2/wso2is:5.10.0
   initialDelaySeconds: 250
   periodSeconds: 10
-  configurations: |-
-    [server]
-    hostname = "$env{HOST_NAME}"
-    node_ip = "$env{NODE_IP}"
-    # base_path = "https://$ref{server.hostname}:${carbon.management.port}"
-
-    [super_admin]
-    username = "admin"
-    password = "admin"
-    create_admin_account = true
-
-    [user_store]
-    type = "read_write_ldap_unique_id"
-    connection_url = "ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}"
-    connection_name = "uid=admin,ou=system"
-    connection_password = "admin"
-    base_dn = "dc=wso2,dc=org"      #refers the base dn on which the user and group search bases will be generated
-
-    [database.identity_db]
-    type = "h2"
-    url = "jdbc:h2:./repository/database/WSO2IDENTITY_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000"
-    username = "wso2carbon"
-    password = "wso2carbon"
-
-    [database.shared_db]
-    type = "h2"
-    url = "jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000"
-    username = "wso2carbon"
-    password = "wso2carbon"
-
-    [keystore.primary]
-    file_name = "wso2carbon.jks"
-    password = "wso2carbon"
+  configurations:
+    server:
+      hostname: $env{HOST_NAME}
+      node_ip:  $env{NODE_IP}
+      super_admin:
+        username: admin
+        password: admin
+      user_store:
+        type: read_write_ldap_unique_id
+        connection_url: ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}
+        connection_name: uid=admin,ou=system
+        connection_password: admin
+        base_dn: dc=wso2,dc=org
+      database:
+        identity_db:
+          type: h2
+          url: jdbc:h2:./repository/database/WSO2IDENTITY_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000
+          username: wso2carbon
+          password: wso2carbon
+        shared_db:
+          type: h2
+          url: jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000
+          username: wso2carbon
+          password: wso2carbon
+      keystore:
+        primary:
+          file_name: wso2carbon.jks
+          password: wso2carbon
