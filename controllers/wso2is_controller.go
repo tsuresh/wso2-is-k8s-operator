@@ -292,6 +292,8 @@ func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is) *corev1.ConfigMap {
 	return configMap
 }
 
+// convert configs to TOML here
+
 // addNewIngress adds a new Ingress Controller
 func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
 	ingress := &v1beta1.Ingress{
@@ -399,7 +401,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 					}},
 					Containers: []corev1.Container{{
 						Name:  "wso2is",
-						Image: "wso2/wso2is:5.10.0",
+						Image: "wso2/wso2is" + m.Spec.ContainerVersion,
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 9443,
 							Protocol:      "TCP",
