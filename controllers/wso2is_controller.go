@@ -18,11 +18,13 @@ package controllers
 
 import (
 	"context"
+	"github.com/naoina/toml"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"os"
 	"reflect"
 
 	"github.com/go-logr/logr"
@@ -285,11 +287,23 @@ func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is) *corev1.ConfigMap {
 			Namespace: m.Namespace,
 		},
 		Data: map[string]string{
-			"deployment.toml": m.Spec.Configurations,
+			"deployment.toml": getTomlConfig(m.Spec.Configurations),
 		},
 	}
 	ctrl.SetControllerReference(&m, configMap, r.Scheme)
 	return configMap
+}
+
+func getTomlConfig(configurations wso2v1.Configurations) string {
+	f, err := os.Open("deployment.toml")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	if err := toml.NewEncoder(f).Encode(configurations); err != nil {
+		panic(err)
+	}
+	return "write success" //read the file and get config
 }
 
 // convert configs to TOML here
