@@ -17,25 +17,24 @@ limitations under the License.
 package controllers
 
 import (
+	"bytes"
 	"context"
-	"fmt"
-	"io/ioutil"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"os"
+	"log"
 	"reflect"
 
 	"github.com/go-logr/logr"
-	"github.com/tsuresh/wso2-is-k8s-operator/toml-converter"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	toml "github.com/BurntSushi/toml"
 	wso2v1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1"
 )
 
@@ -119,7 +118,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	err = r.Get(ctx, types.NamespacedName{Name: "identity-server-conf", Namespace: instance.Namespace}, confMap)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
-		svc := r.addConfigMap(instance)
+		svc := r.addConfigMap(instance, log)
 		log.Info("Creating a new ConfigMap", "ConfigMap.Namespace", svc.Namespace, "ConfigMap.Name", svc.Name)
 		err = r.Create(ctx, svc)
 		if err != nil {
@@ -282,41 +281,28 @@ func (r *Wso2IsReconciler) addServiceAccount(m wso2v1.Wso2Is) *corev1.ServiceAcc
 }
 
 // addConfigMap adds a new ConfigMap
-func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is) *corev1.ConfigMap {
+func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is, logger logr.Logger) *corev1.ConfigMap {
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "identity-server-conf",
 			Namespace: m.Namespace,
 		},
 		Data: map[string]string{
-			"deployment.toml": getTomlConfig(m.Spec.Configurations),
+			"deployment.toml": getTomlConfig(m.Spec.Configurations, logger),
 		},
 	}
 	ctrl.SetControllerReference(&m, configMap, r.Scheme)
 	return configMap
 }
 
-func getTomlConfig(configurations wso2v1.Configurations) string {
-	f, err := os.Open("deployment.toml")
-	if err != nil {
-		panic(err)
+func getTomlConfig(configurations wso2v1.Configurations, logger logr.Logger) string {
+	buf := new(bytes.Buffer)
+	if err := toml.NewEncoder(buf).Encode(configurations); err != nil {
+		log.Fatal(err)
 	}
-	defer f.Close()
-	if err := toml.NewEncoder(f).Encode(configurations); err != nil {
-		panic(err)
-	}
-	return readFile("deployment.toml") //read the file and get config
+	logger.Info(buf.String())
+	return buf.String()
 }
-
-func readFile(s string) string {
-	data, err := ioutil.ReadFile(s)
-	if err != nil {
-		fmt.Println("File reading error", err)
-	}
-	return string(data)
-}
-
-// convert configs to TOML here
 
 // addNewIngress adds a new Ingress Controller
 func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
@@ -425,7 +411,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 					}},
 					Containers: []corev1.Container{{
 						Name:  "wso2is",
-						Image: "wso2/wso2is" + m.Spec.ContainerVersion,
+						Image: "wso2/wso2is:5.10.0",
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 9443,
 							Protocol:      "TCP",

@@ -4,7 +4,6 @@ metadata:
   name: wso2is-operator
 spec:
   replicas: 1
-  containerVersion: 5.10.0
   initialDelaySeconds: 250
   periodSeconds: 10
   configurations:

@@ -31,56 +31,55 @@ type Wso2IsSpec struct {
 	// Foo is an example field of Wso2Is. Edit Wso2Is_types.go to remove/update
 	Size                int32          `json:"replicas"`
 	Configurations      Configurations `json:"configurations"`
-	ContainerVersion    string         `json:"containerVersion"`
 	InitialDelaySeconds int32          `json:"initialDelaySeconds"`
 	PeriodSeconds       int32          `json:"periodSeconds"`
 }
 
 type Configurations struct {
-	Server     Server     `json:"server"`
-	SuperAdmin SuperAdmin `json:"super_admin"`
-	UserStore  UserStore  `json:"user_store"`
-	Database   Database   `json:"database"`
-	Keystore   Keystore   `json:"keystore"`
+	server      Server     `json:"server"`
+	super_admin SuperAdmin `json:"super_admin"`
+	user_store  UserStore  `json:"user_store"`
+	database    Database   `json:"database"`
+	keystore    Keystore   `json:"keystore"`
 }
 type Server struct {
-	Hostname string `json:"hostname"`
-	NodeIP   string `json:"node_ip"`
+	hostname string `json:"hostname"`
+	node_ip  string `json:"node_ip"`
 }
 type SuperAdmin struct {
-	Username           string `json:"username"`
-	Password           string `json:"password"`
-	CreateAdminAccount bool   `json:"create_admin_account"`
+	username             string `json:"username"`
+	password             string `json:"password"`
+	create_admin_account bool   `json:"create_admin_account"`
 }
 type UserStore struct {
-	Type               string `json:"type"`
-	ConnectionURL      string `json:"connection_url"`
-	ConnectionName     string `json:"connection_name"`
-	ConnectionPassword string `json:"connection_password"`
-	BaseDn             string `json:"base_dn"`
+	Type                string `json:"type"`
+	connection_url      string `json:"connection_url"`
+	connection_name     string `json:"connection_name"`
+	connection_password string `json:"connection_password"`
+	base_dn             string `json:"base_dn"`
 }
 type IdentityDb struct {
 	Type     string `json:"type"`
-	URL      string `json:"url"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	url      string `json:"url"`
+	username string `json:"username"`
+	password string `json:"password"`
 }
 type SharedDb struct {
 	Type     string `json:"type"`
-	URL      string `json:"url"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	url      string `json:"url"`
+	username string `json:"username"`
+	password string `json:"password"`
 }
 type Database struct {
-	IdentityDb IdentityDb `json:"identity_db"`
-	SharedDb   SharedDb   `json:"shared_db"`
+	identity_db IdentityDb `json:"identity_db"`
+	shared_db   SharedDb   `json:"shared_db"`
 }
 type Primary struct {
-	FileName string `json:"file_name"`
-	Password string `json:"password"`
+	file_name string `json:"file_name"`
+	password  string `json:"password"`
 }
 type Keystore struct {
-	Primary Primary `json:"primary"`
+	primary Primary `json:"primary"`
 }
 
 // Wso2IsStatus defines the observed state of Wso2Is
