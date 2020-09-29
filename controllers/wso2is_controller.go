@@ -453,8 +453,8 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 									Command: []string{"/bin/sh", "-c", "nc -z localhost 9443"},
 								},
 							},
-							InitialDelaySeconds: m.Spec.InitialDelaySeconds,
-							PeriodSeconds:       m.Spec.PeriodSeconds,
+							InitialDelaySeconds: 250,
+							PeriodSeconds:       10,
 						},
 						ReadinessProbe: &corev1.Probe{
 							Handler: corev1.Handler{
@@ -462,8 +462,8 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 									Command: []string{"/bin/sh", "-c", "nc -z localhost 9443"},
 								},
 							},
-							InitialDelaySeconds: m.Spec.InitialDelaySeconds,
-							PeriodSeconds:       m.Spec.PeriodSeconds,
+							InitialDelaySeconds: 250,
+							PeriodSeconds:       10,
 						},
 						Lifecycle: &corev1.Lifecycle{
 							PreStop: &corev1.Handler{

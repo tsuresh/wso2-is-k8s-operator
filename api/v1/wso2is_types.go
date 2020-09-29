@@ -25,14 +25,8 @@ import (
 
 // Wso2IsSpec defines the desired state of Wso2Is
 type Wso2IsSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of Wso2Is. Edit Wso2Is_types.go to remove/update
-	Size                int32          `json:"replicas"`
-	Configurations      Configurations `json:"configurations"`
-	InitialDelaySeconds int32          `json:"initialDelaySeconds"`
-	PeriodSeconds       int32          `json:"periodSeconds"`
+	Size           int32          `json:"replicas"`
+	Configurations Configurations `json:"configurations"`
 }
 
 type Configurations struct {
