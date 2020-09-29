@@ -140,24 +140,11 @@ spec:
               - super_admin
               - user_store
               type: object
-            containerVersion:
-              type: string
-            initialDelaySeconds:
-              format: int32
-              type: integer
-            periodSeconds:
-              format: int32
-              type: integer
             replicas:
-              description: Foo is an example field of Wso2Is. Edit Wso2Is_types.go
-                to remove/update
               format: int32
               type: integer
           required:
           - configurations
-          - containerVersion
-          - initialDelaySeconds
-          - periodSeconds
           - replicas
           type: object
         status:

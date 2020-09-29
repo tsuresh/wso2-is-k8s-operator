@@ -30,50 +30,50 @@ type Wso2IsSpec struct {
 }
 
 type Configurations struct {
-	server      Server     `json:"server"`
-	super_admin SuperAdmin `json:"super_admin"`
-	user_store  UserStore  `json:"user_store"`
-	database    Database   `json:"database"`
-	keystore    Keystore   `json:"keystore"`
+	Server     Server     `json:"server" toml:"server"`
+	SuperAdmin SuperAdmin `json:"super_admin" toml:"super_admin"`
+	UserStore  UserStore  `json:"user_store" toml:"user_store"`
+	Database   Database   `json:"database" toml:"database"`
+	Keystore   Keystore   `json:"keystore" toml:"keystore"`
 }
 type Server struct {
-	hostname string `json:"hostname"`
-	node_ip  string `json:"node_ip"`
+	Hostname string `json:"hostname" toml:"hostname"`
+	NodeIp   string `json:"node_ip" toml:"node_ip"`
 }
 type SuperAdmin struct {
-	username             string `json:"username"`
-	password             string `json:"password"`
-	create_admin_account bool   `json:"create_admin_account"`
+	Username           string `json:"username" toml:"username"`
+	Password           string `json:"password" toml:"password"`
+	CreateAdminAccount bool   `json:"create_admin_account" toml:"create_admin_account"`
 }
 type UserStore struct {
-	Type                string `json:"type"`
-	connection_url      string `json:"connection_url"`
-	connection_name     string `json:"connection_name"`
-	connection_password string `json:"connection_password"`
-	base_dn             string `json:"base_dn"`
+	Type               string `json:"type" toml:"type"`
+	ConnectionUrl      string `json:"connection_url" toml:"connection_url"`
+	ConnectionName     string `json:"connection_name" toml:"connection_name"`
+	ConnectionPassword string `json:"connection_password" toml:"connection_password"`
+	BaseDn             string `json:"base_dn" toml:"base_dn"`
 }
 type IdentityDb struct {
-	Type     string `json:"type"`
-	url      string `json:"url"`
-	username string `json:"username"`
-	password string `json:"password"`
+	Type     string `json:"type" toml:"type"`
+	Url      string `json:"url" toml:"url"`
+	Username string `json:"username" toml:"username"`
+	Password string `json:"password" toml:"password"`
 }
 type SharedDb struct {
-	Type     string `json:"type"`
-	url      string `json:"url"`
-	username string `json:"username"`
-	password string `json:"password"`
+	Type     string `json:"type" toml:"type"`
+	Url      string `json:"url" toml:"url"`
+	Username string `json:"username" toml:"username"`
+	Password string `json:"password" toml:"password"`
 }
 type Database struct {
-	identity_db IdentityDb `json:"identity_db"`
-	shared_db   SharedDb   `json:"shared_db"`
+	IdentityDb IdentityDb `json:"identity_db" toml:"identity_db"`
+	SharedDb   SharedDb   `json:"shared_db" toml:"shared_db"`
 }
 type Primary struct {
-	file_name string `json:"file_name"`
-	password  string `json:"password"`
+	FileName string `json:"file_name" toml:"file_name"`
+	Password string `json:"password" toml:"password"`
 }
 type Keystore struct {
-	primary Primary `json:"primary"`
+	Primary Primary `json:"primary" toml:"primary"`
 }
 
 // Wso2IsStatus defines the observed state of Wso2Is
