@@ -40,7 +40,7 @@ spec:
               properties:
                 database:
                   properties:
-                    identity_db:
+                    identityDb:
                       properties:
                         password:
                           type: string
@@ -56,7 +56,7 @@ spec:
                       - url
                       - username
                       type: object
-                    shared_db:
+                    sharedDb:
                       properties:
                         password:
                           type: string
@@ -73,19 +73,19 @@ spec:
                       - username
                       type: object
                   required:
-                  - identity_db
-                  - shared_db
+                  - identityDb
+                  - sharedDb
                   type: object
                 keystore:
                   properties:
                     primary:
                       properties:
-                        file_name:
+                        fileName:
                           type: string
                         password:
                           type: string
                       required:
-                      - file_name
+                      - fileName
                       - password
                       type: object
                   required:
@@ -95,50 +95,50 @@ spec:
                   properties:
                     hostname:
                       type: string
-                    node_ip:
+                    nodeIp:
                       type: string
                   required:
                   - hostname
-                  - node_ip
+                  - nodeIp
                   type: object
-                super_admin:
+                superAdmin:
                   properties:
-                    create_admin_account:
+                    createAdminAccount:
                       type: boolean
                     password:
                       type: string
                     username:
                       type: string
                   required:
-                  - create_admin_account
+                  - createAdminAccount
                   - password
                   - username
                   type: object
-                user_store:
+                userStore:
                   properties:
-                    base_dn:
+                    baseDn:
                       type: string
-                    connection_name:
+                    connectionName:
                       type: string
-                    connection_password:
+                    connectionPassword:
                       type: string
-                    connection_url:
+                    connectionUrl:
                       type: string
                     type:
                       type: string
                   required:
-                  - base_dn
-                  - connection_name
-                  - connection_password
-                  - connection_url
+                  - baseDn
+                  - connectionName
+                  - connectionPassword
+                  - connectionUrl
                   - type
                   type: object
               required:
               - database
               - keystore
               - server
-              - super_admin
-              - user_store
+              - superAdmin
+              - userStore
               type: object
             replicas:
               format: int32

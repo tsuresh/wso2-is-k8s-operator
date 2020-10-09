@@ -3,33 +3,34 @@ kind: Wso2Is
 metadata:
   name: wso2is-operator
 spec:
-  replicas: 1
+  replicas: 2
+
   configurations:
     server:
       hostname: $env{HOST_NAME}
-      node_ip:  $env{NODE_IP}
-    super_admin:
+      nodeIp:  $env{NODE_IP}
+    superAdmin:
       username: admin
       password: admin
-      create_admin_account: true
-    user_store:
+      createAdminAccount: true
+    userStore:
       type: read_write_ldap_unique_id
-      connection_url: ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}
-      connection_name: uid=admin,ou=system
-      connection_password: admin
-      base_dn: dc=wso2,dc=org
+      connectionUrl: ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}
+      connectionName: uid=admin,ou=system
+      connectionPassword: admin
+      baseDn: dc=wso2,dc=org
     database:
-      identity_db:
+      identityDb:
         type: h2
         url: jdbc:h2:./repository/database/WSO2IDENTITY_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000
         username: wso2carbon
         password: wso2carbon
-      shared_db:
+      sharedDb:
         type: h2
         url: jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000
         username: wso2carbon
         password: wso2carbon
     keystore:
       primary:
-        file_name: wso2carbon.jks
+        fileName: wso2carbon.jks
         password: wso2carbon
