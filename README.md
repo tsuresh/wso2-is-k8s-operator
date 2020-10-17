@@ -9,6 +9,19 @@ The following CRD operator can be used to deploy WSO2 IS on your Kubernates Clus
 - [Homebrew](https://brew.sh/) installed
 - Git command line installed and configured
 
+## External Database Setup
+Please follow the instructions given in the documentation to setup the external MySQL databases
+
+ - https://is.docs.wso2.com/en/5.9.0/setup/changing-to-mysql/
+ - https://is.docs.wso2.com/en/5.9.0/setup/changing-datasource-bpsds/
+ - https://is.docs.wso2.com/en/5.9.0/setup/changing-datasource-consent-management/
+ 
+### Databases to be created
+ - WSO2_IDENTITY_DB
+ - WSO2_SHARED_DB
+ - WSO2_CONSENT_DB
+ - WSO2_BPS_DB
+ 
 
 ## Installation [Dev]
 
