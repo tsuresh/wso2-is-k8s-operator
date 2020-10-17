@@ -3,8 +3,7 @@ kind: Wso2Is
 metadata:
   name: wso2is-operator
 spec:
-  replicas: 2
-
+  replicas: 1
   configurations:
     server:
       hostname: $env{HOST_NAME}
@@ -14,23 +13,66 @@ spec:
       password: admin
       createAdminAccount: true
     userStore:
-      type: read_write_ldap_unique_id
-      connectionUrl: ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}
-      connectionName: uid=admin,ou=system
-      connectionPassword: admin
-      baseDn: dc=wso2,dc=org
+      type: database_unique_id
     database:
       identityDb:
-        type: h2
-        url: jdbc:h2:./repository/database/WSO2IDENTITY_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000
-        username: wso2carbon
-        password: wso2carbon
+        driver: com.mysql.jdbc.Driver
+        url: jdbc:mysql://192.168.99.1:3306/WSO2_IDENTITY_DB?autoReconnect=true&amp;useSSL=false
+        username: root
+        password: r00T@123
+        pool_options:
+          validationQuery: SELECT 1
       sharedDb:
-        type: h2
-        url: jdbc:h2:./repository/database/WSO2SHARED_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000
+        driver: com.mysql.jdbc.Driver
+        url: jdbc:mysql://192.168.99.1:3306/WSO2_SHARED_DB?autoReconnect=true&amp;useSSL=false
+        username: root
+        password: r00T@123
+        pool_options:
+          validationQuery: SELECT 1
+      user:
+        driver: com.mysql.jdbc.Driver
+        url: jdbc:mysql://192.168.99.1:3306/WSO2_SHARED_DB?autoReconnect=true&amp;useSSL=false
+        username: root
+        password: r00T@123
+        pool_options:
+          validationQuery: SELECT 1
+      bpsDb:
+        driver: com.mysql.jdbc.Driver
+        url: jdbc:mysql://192.168.99.1:3306/WSO2IS_BPS_DB?autoReconnect=true&amp;useSSL=false
+        username: root
+        password: r00T@123
+        pool_options:
+          validationQuery: SELECT 1
+    transport:
+      https:
+        properties:
+          proxyPort: 443
+    datastore:
+      - id: WSO2ConsentDS
+        url: jdbc:mysql://wso2is-mysql-db-service:3306/WSO2IS_CONSENT_DB?autoReconnect=true&amp;useSSL=false
         username: wso2carbon
         password: wso2carbon
+        driver: com.mysql.cj.jdbc.Driver
+        pool_options_validationQuery: SELECT 1
+        pool_options_maxActive: 50
+        pool_options_maxWait: 60000
+        pool_options_testOnBorrow: true
+        pool_options_jmxEnabled: false
+    authentication:
+      consent:
+        data_source: jdbc/WSO2ConsentDS
     keystore:
       primary:
         fileName: wso2carbon.jks
         password: wso2carbon
+    monitoring:
+      jmx:
+        rmi_server_start: true
+    clustering:
+      membership_scheme: kubernetes
+      domain: wso2.is.domain
+      properties_membershipSchemeClassName: org.wso2.carbon.membership.scheme.kubernetes.KubernetesMembershipScheme
+      properties_KUBERNETES_NAMESPACE: default
+      properties_KUBERNETES_SERVICES: wso2is-clustering-service
+      properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION: true
+      properties_USE_DNS: false

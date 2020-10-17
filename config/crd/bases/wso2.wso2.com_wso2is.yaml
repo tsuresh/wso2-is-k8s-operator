@@ -38,107 +38,268 @@ spec:
           properties:
             configurations:
               properties:
+                authentication:
+                  properties:
+                    consent:
+                      properties:
+                        data_source:
+                          type: string
+                      required:
+                      - data_source
+                      type: object
+                  required:
+                  - consent
+                  type: object
+                clustering:
+                  properties:
+                    domain:
+                      type: string
+                    membership_scheme:
+                      type: string
+                    properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION:
+                      type: string
+                    properties_KUBERNETES_NAMESPACE:
+                      type: string
+                    properties_KUBERNETES_SERVICES:
+                      type: string
+                    properties_USE_DNS:
+                      type: string
+                    properties_membershipSchemeClassName:
+                      type: string
+                  required:
+                  - domain
+                  - membership_scheme
+                  - properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION
+                  - properties_KUBERNETES_NAMESPACE
+                  - properties_KUBERNETES_SERVICES
+                  - properties_USE_DNS
+                  - properties_membershipSchemeClassName
+                  type: object
                 database:
                   properties:
-                    identityDb:
+                    bps_database:
                       properties:
+                        driver:
+                          type: string
                         password:
                           type: string
-                        type:
-                          type: string
+                        pool_options:
+                          properties:
+                            validationQuery:
+                              type: string
+                          required:
+                          - validationQuery
+                          type: object
                         url:
                           type: string
                         username:
                           type: string
                       required:
+                      - driver
                       - password
-                      - type
+                      - pool_options
                       - url
                       - username
                       type: object
-                    sharedDb:
+                    identity_db:
                       properties:
+                        driver:
+                          type: string
                         password:
                           type: string
-                        type:
-                          type: string
+                        pool_options:
+                          properties:
+                            validationQuery:
+                              type: string
+                          required:
+                          - validationQuery
+                          type: object
                         url:
                           type: string
                         username:
                           type: string
                       required:
+                      - driver
                       - password
-                      - type
+                      - pool_options
+                      - url
+                      - username
+                      type: object
+                    shared_db:
+                      properties:
+                        driver:
+                          type: string
+                        password:
+                          type: string
+                        pool_options:
+                          properties:
+                            validationQuery:
+                              type: string
+                          required:
+                          - validationQuery
+                          type: object
+                        url:
+                          type: string
+                        username:
+                          type: string
+                      required:
+                      - driver
+                      - password
+                      - pool_options
+                      - url
+                      - username
+                      type: object
+                    user:
+                      properties:
+                        driver:
+                          type: string
+                        password:
+                          type: string
+                        pool_options:
+                          properties:
+                            validationQuery:
+                              type: string
+                          required:
+                          - validationQuery
+                          type: object
+                        url:
+                          type: string
+                        username:
+                          type: string
+                      required:
+                      - driver
+                      - password
+                      - pool_options
                       - url
                       - username
                       type: object
                   required:
-                  - identityDb
-                  - sharedDb
+                  - bps_database
+                  - identity_db
+                  - shared_db
+                  - user
                   type: object
+                datasource:
+                  items:
+                    properties:
+                      driver:
+                        type: string
+                      id:
+                        type: string
+                      password:
+                        type: string
+                      pool_options_jmxEnabled:
+                        type: boolean
+                      pool_options_maxActive:
+                        type: integer
+                      pool_options_maxWait:
+                        type: integer
+                      pool_options_testOnBorrow:
+                        type: boolean
+                      pool_options_validationQuery:
+                        type: string
+                      url:
+                        type: string
+                      username:
+                        type: string
+                    required:
+                    - driver
+                    - id
+                    - password
+                    - pool_options_jmxEnabled
+                    - pool_options_maxActive
+                    - pool_options_maxWait
+                    - pool_options_testOnBorrow
+                    - pool_options_validationQuery
+                    - url
+                    - username
+                    type: object
+                  type: array
                 keystore:
                   properties:
                     primary:
                       properties:
-                        fileName:
+                        name:
                           type: string
                         password:
                           type: string
                       required:
-                      - fileName
+                      - name
                       - password
                       type: object
                   required:
                   - primary
                   type: object
+                monitoring:
+                  properties:
+                    jmx:
+                      properties:
+                        rmi_server_start:
+                          type: boolean
+                      required:
+                      - rmi_server_start
+                      type: object
+                  required:
+                  - jmx
+                  type: object
                 server:
                   properties:
                     hostname:
                       type: string
-                    nodeIp:
+                    node_ip:
                       type: string
                   required:
                   - hostname
-                  - nodeIp
+                  - node_ip
                   type: object
-                superAdmin:
+                super_admin:
                   properties:
-                    createAdminAccount:
+                    create_admin_account:
                       type: boolean
                     password:
                       type: string
                     username:
                       type: string
                   required:
-                  - createAdminAccount
+                  - create_admin_account
                   - password
                   - username
                   type: object
-                userStore:
+                transport:
                   properties:
-                    baseDn:
-                      type: string
-                    connectionName:
-                      type: string
-                    connectionPassword:
-                      type: string
-                    connectionUrl:
-                      type: string
+                    https:
+                      properties:
+                        properties:
+                          properties:
+                            proxyPort:
+                              type: string
+                          required:
+                          - proxyPort
+                          type: object
+                      required:
+                      - properties
+                      type: object
+                  required:
+                  - https
+                  type: object
+                user_store:
+                  properties:
                     type:
                       type: string
                   required:
-                  - baseDn
-                  - connectionName
-                  - connectionPassword
-                  - connectionUrl
                   - type
                   type: object
               required:
+              - authentication
+              - clustering
               - database
+              - datasource
               - keystore
+              - monitoring
               - server
-              - superAdmin
-              - userStore
+              - super_admin
+              - transport
+              - user_store
               type: object
             replicas:
               format: int32

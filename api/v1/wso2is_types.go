@@ -28,59 +28,122 @@ type Wso2IsSpec struct {
 	Size           int32          `json:"replicas"`
 	Configurations Configurations `json:"configurations"`
 }
-
 type Configurations struct {
-	Server     Server     `json:"server" toml:"server"`
-	SuperAdmin SuperAdmin `json:"superAdmin" toml:"super_admin"`
-	UserStore  UserStore  `json:"userStore" toml:"user_store"`
-	Database   Database   `json:"database" toml:"database"`
-	Keystore   Keystore   `json:"keystore" toml:"keystore"`
+	Server         Server         `json:"server" toml:"server"`
+	SuperAdmin     SuperAdmin     `json:"super_admin" toml:"super_admin"`
+	UserStore      UserStore      `json:"user_store" toml:"user_store"`
+	Database       Database       `json:"database" toml:"database"`
+	Transport      Transport      `json:"transport" toml:"transport"`
+	Datasource     []Datasource   `json:"datasource" toml:"datasource"`
+	Authentication Authentication `json:"authentication" toml:"authentication"`
+	Keystore       Keystore       `json:"keystore" toml:"keystore"`
+	Clustering     Clustering     `json:"clustering" toml:"clustering"`
+	Monitoring     Monitoring     `json:"monitoring" toml:"monitoring"`
 }
 type Server struct {
 	Hostname string `json:"hostname" toml:"hostname"`
-	NodeIp   string `json:"nodeIp" toml:"node_ip"`
+	NodeIP   string `json:"node_ip" toml:"node_ip"`
 }
 type SuperAdmin struct {
 	Username           string `json:"username" toml:"username"`
 	Password           string `json:"password" toml:"password"`
-	CreateAdminAccount bool   `json:"createAdminAccount" toml:"create_admin_account"`
+	CreateAdminAccount bool   `json:"create_admin_account" toml:"create_admin_account"`
 }
 type UserStore struct {
-	Type               string `json:"type" toml:"type"`
-	ConnectionUrl      string `json:"connectionUrl" toml:"connection_url"`
-	ConnectionName     string `json:"connectionName" toml:"connection_name"`
-	ConnectionPassword string `json:"connectionPassword" toml:"connection_password"`
-	BaseDn             string `json:"baseDn" toml:"base_dn"`
+	Type string `json:"type" toml:"type"`
+}
+type PoolOptions struct {
+	ValidationQuery string `json:"validationQuery" toml:"validationQuery"`
+}
+type User struct {
+	URL         string      `json:"url" toml:"url"`
+	Username    string      `json:"username" toml:"username"`
+	Password    string      `json:"password" toml:"password"`
+	Driver      string      `json:"driver" toml:"driver"`
+	PoolOptions PoolOptions `json:"pool_options" toml:"pool_options"`
 }
 type IdentityDb struct {
-	Type     string `json:"type" toml:"type"`
-	Url      string `json:"url" toml:"url"`
-	Username string `json:"username" toml:"username"`
-	Password string `json:"password" toml:"password"`
+	URL         string      `json:"url" toml:"url"`
+	Username    string      `json:"username" toml:"username"`
+	Password    string      `json:"password" toml:"password"`
+	Driver      string      `json:"driver" toml:"driver"`
+	PoolOptions PoolOptions `json:"pool_options"`
 }
 type SharedDb struct {
-	Type     string `json:"type" toml:"type"`
-	Url      string `json:"url" toml:"url"`
-	Username string `json:"username" toml:"username"`
-	Password string `json:"password" toml:"password"`
+	URL         string      `json:"url" toml:"url"`
+	Username    string      `json:"username" toml:"username"`
+	Password    string      `json:"password" toml:"password"`
+	Driver      string      `json:"driver" toml:"driver"`
+	PoolOptions PoolOptions `json:"pool_options" toml:"pool_options"`
+}
+type BpsDatabase struct {
+	URL         string      `json:"url" toml:"url"`
+	Username    string      `json:"username" toml:"username"`
+	Password    string      `json:"password" toml:"password"`
+	Driver      string      `json:"driver" toml:"driver"`
+	PoolOptions PoolOptions `json:"pool_options" toml:"pool_options"`
 }
 type Database struct {
-	IdentityDb IdentityDb `json:"identityDb" toml:"identity_db"`
-	SharedDb   SharedDb   `json:"sharedDb" toml:"shared_db"`
+	User        User        `json:"user" toml:"user"`
+	IdentityDb  IdentityDb  `json:"identityDb" toml:"identity_db"`
+	SharedDb    SharedDb    `json:"sharedDb" toml:"shared_db"`
+	BpsDatabase BpsDatabase `json:"bpsDb" toml:"bps_database"`
+}
+type Properties struct {
+	ProxyPort int `json:"proxyPort" toml:"proxyPort"`
+}
+type HTTPS struct {
+	Properties Properties `json:"properties" toml:"properties"`
+}
+type Transport struct {
+	HTTPS HTTPS `json:"https" toml:"https"`
+}
+type Datasource struct {
+	ID                         string `json:"id" toml:"id"`
+	URL                        string `json:"url" toml:"url"`
+	Username                   string `json:"username" toml:"username"`
+	Password                   string `json:"password" toml:"password"`
+	Driver                     string `json:"driver" toml:"driver"`
+	PoolOptionsValidationQuery string `json:"pool_options_validationQuery" toml:"pool_options.validationQuery"`
+	PoolOptionsMaxActive       int    `json:"pool_options_maxActive" toml:"pool_options.maxActive"`
+	PoolOptionsMaxWait         int    `json:"pool_options_maxWait" toml:"pool_options.maxWait"`
+	PoolOptionsTestOnBorrow    bool   `json:"pool_options_testOnBorrow" toml:"pool_options.testOnBorrow"`
+	PoolOptionsJmxEnabled      bool   `json:"pool_options_jmxEnabled" toml:"pool_options.jmxEnabled"`
+}
+type Consent struct {
+	DataSource string `json:"data_source" toml:"data_source"`
+}
+type Authentication struct {
+	Consent Consent `json:"consent" toml:"consent"`
 }
 type Primary struct {
-	FileName string `json:"fileName" toml:"file_name"`
+	Name     string `json:"name" toml:"name"`
 	Password string `json:"password" toml:"password"`
 }
 type Keystore struct {
 	Primary Primary `json:"primary" toml:"primary"`
+}
+type Clustering struct {
+	MembershipScheme                              string `json:"membership_scheme" toml:"membership_scheme"`
+	Domain                                        string `json:"domain" toml:"domain"`
+	PropertiesMembershipSchemeClassName           string `json:"properties_membershipSchemeClassName" toml:"properties.membershipSchemeClassName"`
+	PropertiesKUBERNETESNAMESPACE                 string `json:"properties_KUBERNETES_NAMESPACE" toml:"properties.KUBERNETES_NAMESPACE"`
+	PropertiesKUBERNETESSERVICES                  string `json:"properties_KUBERNETES_SERVICES" toml:"properties.KUBERNETES_SERVICES"`
+	PropertiesKUBERNETESMASTERSKIPSSLVERIFICATION bool   `json:"properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION" toml:"properties.KUBERNETES_MASTER_SKIP_SSL_VERIFICATION"`
+	PropertiesUSEDNS                              bool   `json:"properties_USE_DNS" toml:"properties.USE_DNS"`
+}
+type Jmx struct {
+	RmiServerStart bool `toml:"rmi_server_start" json:"rmi_server_start"`
+}
+type Monitoring struct {
+	Jmx Jmx `toml:"jmx" json:"jmx"`
 }
 
 // Wso2IsStatus defines the observed state of Wso2Is
 type Wso2IsStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	Nodes []string `json:"nodes"`
+	Nodes []string `json:"nodes" toml:"nodes"`
 }
 
 // +kubebuilder:object:root=true
