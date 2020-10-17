@@ -56,8 +56,6 @@ spec:
                       type: string
                     membership_scheme:
                       type: string
-                    properties_KUBERNETES_API_SERVER:
-                      type: string
                     properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION:
                       type: boolean
                     properties_KUBERNETES_NAMESPACE:
@@ -71,7 +69,6 @@ spec:
                   required:
                   - domain
                   - membership_scheme
-                  - properties_KUBERNETES_API_SERVER
                   - properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION
                   - properties_KUBERNETES_NAMESPACE
                   - properties_KUBERNETES_SERVICES

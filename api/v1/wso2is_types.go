@@ -132,7 +132,7 @@ type Clustering struct {
 	PropertiesKUBERNETESSERVICES                  string `json:"properties_KUBERNETES_SERVICES" toml:"properties.KUBERNETES_SERVICES"`
 	PropertiesKUBERNETESMASTERSKIPSSLVERIFICATION bool   `json:"properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION" toml:"properties.KUBERNETES_MASTER_SKIP_SSL_VERIFICATION"`
 	PropertiesUSEDNS                              bool   `json:"properties_USE_DNS" toml:"properties.USE_DNS"`
-	PropertiesKUBERNETES_API_SERVER               string `json:"properties_KUBERNETES_API_SERVER" toml:"properties.KUBERNETES_API_SERVER"`
+	//PropertiesKUBERNETES_API_SERVER               string `json:"properties_KUBERNETES_API_SERVER" toml:"properties.KUBERNETES_API_SERVER"`
 }
 type Jmx struct {
 	RmiServerStart bool `toml:"rmi_server_start" json:"rmi_server_start"`
