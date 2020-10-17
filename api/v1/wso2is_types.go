@@ -30,8 +30,8 @@ type Wso2IsSpec struct {
 }
 type Configurations struct {
 	Server         Server         `json:"server" toml:"server"`
-	SuperAdmin     SuperAdmin     `json:"super_admin" toml:"super_admin"`
-	UserStore      UserStore      `json:"user_store" toml:"user_store"`
+	SuperAdmin     SuperAdmin     `json:"superAdmin" toml:"super_admin"`
+	UserStore      UserStore      `json:"userStore" toml:"user_store"`
 	Database       Database       `json:"database" toml:"database"`
 	Transport      Transport      `json:"transport" toml:"transport"`
 	Datasource     []Datasource   `json:"datasource" toml:"datasource"`
@@ -42,12 +42,12 @@ type Configurations struct {
 }
 type Server struct {
 	Hostname string `json:"hostname" toml:"hostname"`
-	NodeIP   string `json:"node_ip" toml:"node_ip"`
+	NodeIP   string `json:"nodeIp" toml:"node_ip"`
 }
 type SuperAdmin struct {
 	Username           string `json:"username" toml:"username"`
 	Password           string `json:"password" toml:"password"`
-	CreateAdminAccount bool   `json:"create_admin_account" toml:"create_admin_account"`
+	CreateAdminAccount bool   `json:"createAdminAccount" toml:"create_admin_account"`
 }
 type UserStore struct {
 	Type string `json:"type" toml:"type"`
@@ -131,6 +131,7 @@ type Clustering struct {
 	PropertiesKUBERNETESSERVICES                  string `json:"properties_KUBERNETES_SERVICES" toml:"properties.KUBERNETES_SERVICES"`
 	PropertiesKUBERNETESMASTERSKIPSSLVERIFICATION bool   `json:"properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION" toml:"properties.KUBERNETES_MASTER_SKIP_SSL_VERIFICATION"`
 	PropertiesUSEDNS                              bool   `json:"properties_USE_DNS" toml:"properties.USE_DNS"`
+	PropertiesKUBERNETES_API_SERVER               string `json:"properties_KUBERNETES_API_SERVER" toml:"properties.KUBERNETES_API_SERVER"`
 }
 type Jmx struct {
 	RmiServerStart bool `toml:"rmi_server_start" json:"rmi_server_start"`
