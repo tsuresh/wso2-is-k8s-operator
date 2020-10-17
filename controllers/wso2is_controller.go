@@ -288,20 +288,24 @@ func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is, logger logr.Logger) *co
 			Namespace: m.Namespace,
 		},
 		Data: map[string]string{
-			"deployment.toml": getTomlConfig(m.Spec.Configurations, logger),
+			"deployment.toml": getTomlConfig(m.Spec, logger),
 		},
 	}
 	ctrl.SetControllerReference(&m, configMap, r.Scheme)
 	return configMap
 }
 
-func getTomlConfig(configurations wso2v1.Configurations, logger logr.Logger) string {
-	buf := new(bytes.Buffer)
-	if err := toml.NewEncoder(buf).Encode(configurations); err != nil {
-		log.Fatal(err)
+func getTomlConfig(spec wso2v1.Wso2IsSpec, logger logr.Logger) string {
+	if len(spec.TomlConfig) == 0 {
+		buf := new(bytes.Buffer)
+		if err := toml.NewEncoder(buf).Encode(spec.Configurations); err != nil {
+			log.Fatal(err)
+		}
+		logger.Info(buf.String())
+		return buf.String()
+	} else {
+		return spec.TomlConfig
 	}
-	logger.Info(buf.String())
-	return buf.String()
 }
 
 // addNewIngress adds a new Ingress Controller

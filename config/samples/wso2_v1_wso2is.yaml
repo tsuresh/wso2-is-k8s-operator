@@ -69,7 +69,7 @@ spec:
       jmx:
         rmi_server_start: true
     clustering:
-      membership_scheme: multicast
+      membership_scheme: kubernetes
       domain: wso2.is.domain
       properties_membershipSchemeClassName: org.wso2.carbon.membership.scheme.kubernetes.KubernetesMembershipScheme
       properties_KUBERNETES_NAMESPACE: default

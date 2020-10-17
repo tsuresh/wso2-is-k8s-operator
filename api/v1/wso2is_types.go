@@ -26,7 +26,8 @@ import (
 // Wso2IsSpec defines the desired state of Wso2Is
 type Wso2IsSpec struct {
 	Size           int32          `json:"replicas"`
-	Configurations Configurations `json:"configurations"`
+	Configurations Configurations `json:"configurations,omitempty"`
+	TomlConfig     string         `json:"tomlConfig,omitempty"`
 }
 type Configurations struct {
 	Server         Server         `json:"server" toml:"server"`

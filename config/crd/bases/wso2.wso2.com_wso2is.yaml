@@ -307,9 +307,12 @@ spec:
             replicas:
               format: int32
               type: integer
+            tomlConfig:
+              type: string
           required:
           - configurations
           - replicas
+          - tomlConfig
           type: object
         status:
           description: Wso2IsStatus defines the observed state of Wso2Is
