@@ -38,18 +38,6 @@ spec:
           properties:
             configurations:
               properties:
-                authentication:
-                  properties:
-                    consent:
-                      properties:
-                        data_source:
-                          type: string
-                      required:
-                      - data_source
-                      type: object
-                  required:
-                  - consent
-                  type: object
                 clustering:
                   properties:
                     domain:
@@ -78,6 +66,7 @@ spec:
                 database:
                   properties:
                     identityDb:
+                      description: User        User        `json:"user" toml:"user"`
                       properties:
                         driver:
                           type: string
@@ -129,43 +118,11 @@ spec:
                   - identityDb
                   - sharedDb
                   type: object
-                datasource:
-                  items:
-                    properties:
-                      driver:
-                        type: string
-                      id:
-                        type: string
-                      password:
-                        type: string
-                      pool_options_jmxEnabled:
-                        type: boolean
-                      pool_options_maxActive:
-                        type: integer
-                      pool_options_maxWait:
-                        type: integer
-                      pool_options_testOnBorrow:
-                        type: boolean
-                      pool_options_validationQuery:
-                        type: string
-                      url:
-                        type: string
-                      username:
-                        type: string
-                    required:
-                    - driver
-                    - id
-                    - password
-                    - pool_options_jmxEnabled
-                    - pool_options_maxActive
-                    - pool_options_maxWait
-                    - pool_options_testOnBorrow
-                    - pool_options_validationQuery
-                    - url
-                    - username
-                    type: object
-                  type: array
+                host:
+                  type: string
                 keystore:
+                  description: Datasource     []Datasource   `json:"datasource" toml:"datasource"`
+                    Authentication Authentication `json:"authentication" toml:"authentication"`
                   properties:
                     primary:
                       properties:
@@ -240,10 +197,9 @@ spec:
                   - type
                   type: object
               required:
-              - authentication
               - clustering
               - database
-              - datasource
+              - host
               - keystore
               - monitoring
               - server

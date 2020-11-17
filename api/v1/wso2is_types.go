@@ -30,20 +30,22 @@ type Wso2IsSpec struct {
 	TomlConfig     string         `json:"tomlConfig,omitempty"`
 }
 type Configurations struct {
-	Server         Server         `json:"server" toml:"server"`
-	SuperAdmin     SuperAdmin     `json:"superAdmin" toml:"super_admin"`
-	UserStore      UserStore      `json:"userStore" toml:"user_store"`
-	Database       Database       `json:"database" toml:"database"`
-	Transport      Transport      `json:"transport" toml:"transport"`
-	Datasource     []Datasource   `json:"datasource" toml:"datasource"`
-	Authentication Authentication `json:"authentication" toml:"authentication"`
-	Keystore       Keystore       `json:"keystore" toml:"keystore"`
-	Clustering     Clustering     `json:"clustering" toml:"clustering"`
-	Monitoring     Monitoring     `json:"monitoring" toml:"monitoring"`
+	Host       string     `json:"host"`
+	Server     Server     `json:"server" toml:"server"`
+	SuperAdmin SuperAdmin `json:"superAdmin" toml:"super_admin"`
+	UserStore  UserStore  `json:"userStore" toml:"user_store"`
+	Database   Database   `json:"database" toml:"database"`
+	Transport  Transport  `json:"transport" toml:"transport"`
+	//Datasource     []Datasource   `json:"datasource" toml:"datasource"`
+	//Authentication Authentication `json:"authentication" toml:"authentication"`
+	Keystore   Keystore   `json:"keystore" toml:"keystore"`
+	Clustering Clustering `json:"clustering" toml:"clustering"`
+	Monitoring Monitoring `json:"monitoring" toml:"monitoring"`
 }
 type Server struct {
 	Hostname string `json:"hostname" toml:"hostname"`
 	NodeIP   string `json:"nodeIp" toml:"node_ip"`
+	//BasePath string `json:"basePath" toml:"base_path"`
 }
 type SuperAdmin struct {
 	Username           string `json:"username" toml:"username"`
@@ -85,8 +87,10 @@ type BpsDatabase struct {
 	PoolOptions PoolOptions `json:"pool_options" toml:"pool_options"`
 }
 type Database struct {
+	//User        User        `json:"user" toml:"user"`
 	IdentityDb IdentityDb `json:"identityDb" toml:"identity_db"`
 	SharedDb   SharedDb   `json:"sharedDb" toml:"shared_db"`
+	//BpsDatabase BpsDatabase `json:"bpsDb" toml:"bps_database"`
 }
 type Properties struct {
 	ProxyPort int `json:"proxyPort" toml:"proxyPort"`

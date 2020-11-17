@@ -325,12 +325,12 @@ func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
 		Spec: v1beta1.IngressSpec{
 			TLS: []v1beta1.IngressTLS{
 				{
-					Hosts: []string{"wso2is"},
+					Hosts: []string{m.Spec.Configurations.Host},
 				},
 			},
 			Rules: []v1beta1.IngressRule{
 				{
-					Host: "wso2is",
+					Host: m.Spec.Configurations.Host,
 					IngressRuleValue: v1beta1.IngressRuleValue{
 						HTTP: &v1beta1.HTTPIngressRuleValue{
 							Paths: []v1beta1.HTTPIngressPath{{
@@ -432,7 +432,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 							},
 						}, {
 							Name:  "HOST_NAME",
-							Value: "wso2is",
+							Value: m.Spec.Configurations.Host,
 						}},
 						/* @TODO Please uncomment for live production
 						Resources: corev1.ResourceRequirements{
@@ -488,7 +488,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 					ServiceAccountName: "wso2svc-account",
 					HostAliases: []corev1.HostAlias{{
 						IP:        "127.0.0.1",
-						Hostnames: []string{"wso2is"},
+						Hostnames: []string{m.Spec.Configurations.Host},
 					}},
 				},
 			},

@@ -5,6 +5,7 @@ metadata:
 spec:
   replicas: 2
   configurations:
+    host: identityserver
     server:
       hostname: $env{HOST_NAME}
       nodeIp:  $env{NODE_IP}
@@ -17,14 +18,14 @@ spec:
     database:
       identityDb:
         driver: com.mysql.jdbc.Driver
-        url: jdbc:mysql://192.168.99.1:3306/WSO2_IDENTITY_DB?autoReconnect=true&amp;useSSL=false
+        url: jdbc:mysql://192.168.99.1:3306/WSO2_IDENTITY_DB_NEW?autoReconnect=true&amp;useSSL=false
         username: root
         password: r00T@123
         pool_options:
           validationQuery: SELECT 1
       sharedDb:
         driver: com.mysql.jdbc.Driver
-        url: jdbc:mysql://192.168.99.1:3306/WSO2_SHARED_DB?autoReconnect=true&amp;useSSL=false
+        url: jdbc:mysql://192.168.99.1:3306/WSO2_SHARED_DB_NEW?autoReconnect=true&amp;useSSL=false
         username: root
         password: r00T@123
         pool_options:
@@ -33,20 +34,6 @@ spec:
       https:
         properties:
           proxyPort: 443
-    datasource:
-      - id: WSO2ConsentDS
-        url: jdbc:mysql://192.168.99.1:3306/WSO2IS_CONSENT_DB?autoReconnect=true&amp;useSSL=false
-        username: wso2carbon
-        password: wso2carbon
-        driver: com.mysql.cj.jdbc.Driver
-        pool_options_validationQuery: SELECT 1
-        pool_options_maxActive: 50
-        pool_options_maxWait: 60000
-        pool_options_testOnBorrow: true
-        pool_options_jmxEnabled: false
-    authentication:
-      consent:
-        data_source: jdbc/WSO2ConsentDS
     keystore:
       primary:
         name: wso2carbon.jks
@@ -55,7 +42,7 @@ spec:
       jmx:
         rmi_server_start: true
     clustering:
-      membership_scheme: kubernetes
+      membership_scheme: multicast
       domain: wso2.is.domain
       properties_membershipSchemeClassName: org.wso2.carbon.membership.scheme.kubernetes.KubernetesMembershipScheme
       properties_KUBERNETES_NAMESPACE: default
