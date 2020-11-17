@@ -77,30 +77,6 @@ spec:
                   type: object
                 database:
                   properties:
-                    bpsDb:
-                      properties:
-                        driver:
-                          type: string
-                        password:
-                          type: string
-                        pool_options:
-                          properties:
-                            validationQuery:
-                              type: string
-                          required:
-                          - validationQuery
-                          type: object
-                        url:
-                          type: string
-                        username:
-                          type: string
-                      required:
-                      - driver
-                      - password
-                      - pool_options
-                      - url
-                      - username
-                      type: object
                     identityDb:
                       properties:
                         driver:
@@ -149,35 +125,9 @@ spec:
                       - url
                       - username
                       type: object
-                    user:
-                      properties:
-                        driver:
-                          type: string
-                        password:
-                          type: string
-                        pool_options:
-                          properties:
-                            validationQuery:
-                              type: string
-                          required:
-                          - validationQuery
-                          type: object
-                        url:
-                          type: string
-                        username:
-                          type: string
-                      required:
-                      - driver
-                      - password
-                      - pool_options
-                      - url
-                      - username
-                      type: object
                   required:
-                  - bpsDb
                   - identityDb
                   - sharedDb
-                  - user
                   type: object
                 datasource:
                   items:

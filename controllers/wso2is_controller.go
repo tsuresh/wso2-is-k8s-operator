@@ -415,7 +415,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 					}},
 					Containers: []corev1.Container{{
 						Name:  "wso2is",
-						Image: "wso2/wso2is:5.10.0",
+						Image: "sureshmichael/wso2-is-5.11.0:rc1",
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 9443,
 							Protocol:      "TCP",

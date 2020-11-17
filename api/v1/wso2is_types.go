@@ -85,10 +85,8 @@ type BpsDatabase struct {
 	PoolOptions PoolOptions `json:"pool_options" toml:"pool_options"`
 }
 type Database struct {
-	User        User        `json:"user" toml:"user"`
-	IdentityDb  IdentityDb  `json:"identityDb" toml:"identity_db"`
-	SharedDb    SharedDb    `json:"sharedDb" toml:"shared_db"`
-	BpsDatabase BpsDatabase `json:"bpsDb" toml:"bps_database"`
+	IdentityDb IdentityDb `json:"identityDb" toml:"identity_db"`
+	SharedDb   SharedDb   `json:"sharedDb" toml:"shared_db"`
 }
 type Properties struct {
 	ProxyPort int `json:"proxyPort" toml:"proxyPort"`

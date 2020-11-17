@@ -29,20 +29,6 @@ spec:
         password: r00T@123
         pool_options:
           validationQuery: SELECT 1
-      user:
-        driver: com.mysql.jdbc.Driver
-        url: jdbc:mysql://192.168.99.1:3306/WSO2_SHARED_DB?autoReconnect=true&amp;useSSL=false
-        username: root
-        password: r00T@123
-        pool_options:
-          validationQuery: SELECT 1
-      bpsDb:
-        driver: com.mysql.jdbc.Driver
-        url: jdbc:mysql://192.168.99.1:3306/WSO2IS_BPS_DB?autoReconnect=true&amp;useSSL=false
-        username: root
-        password: r00T@123
-        pool_options:
-          validationQuery: SELECT 1
     transport:
       https:
         properties:
@@ -69,7 +55,7 @@ spec:
       jmx:
         rmi_server_start: true
     clustering:
-      membership_scheme: multicast
+      membership_scheme: kubernetes
       domain: wso2.is.domain
       properties_membershipSchemeClassName: org.wso2.carbon.membership.scheme.kubernetes.KubernetesMembershipScheme
       properties_KUBERNETES_NAMESPACE: default
