@@ -127,14 +127,17 @@ type Keystore struct {
 	Primary Primary `json:"primary" toml:"primary"`
 }
 type Clustering struct {
-	MembershipScheme                              string `json:"membership_scheme" toml:"membership_scheme"`
-	Domain                                        string `json:"domain" toml:"domain"`
-	PropertiesMembershipSchemeClassName           string `json:"properties_membershipSchemeClassName" toml:"properties.membershipSchemeClassName"`
-	PropertiesKUBERNETESNAMESPACE                 string `json:"properties_KUBERNETES_NAMESPACE" toml:"properties.KUBERNETES_NAMESPACE"`
-	PropertiesKUBERNETESSERVICES                  string `json:"properties_KUBERNETES_SERVICES" toml:"properties.KUBERNETES_SERVICES"`
-	PropertiesKUBERNETESMASTERSKIPSSLVERIFICATION bool   `json:"properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION" toml:"properties.KUBERNETES_MASTER_SKIP_SSL_VERIFICATION"`
-	PropertiesUSEDNS                              bool   `json:"properties_USE_DNS" toml:"properties.USE_DNS"`
-	//PropertiesKUBERNETES_API_SERVER               string `json:"properties_KUBERNETES_API_SERVER" toml:"properties.KUBERNETES_API_SERVER"`
+	MembershipScheme string               `json:"membership_scheme" toml:"membership_scheme"`
+	Domain           string               `json:"domain" toml:"domain"`
+	Properties       ClusteringProperties `json:"properties" toml:"properties"`
+}
+type ClusteringProperties struct {
+	PropertiesMembershipSchemeClassName           string `json:"membershipSchemeClassName" toml:"membershipSchemeClassName"`
+	PropertiesKUBERNETESNAMESPACE                 string `json:"KUBERNETES_NAMESPACE" toml:"KUBERNETES_NAMESPACE"`
+	PropertiesKUBERNETESSERVICES                  string `json:"KUBERNETES_SERVICES" toml:"KUBERNETES_SERVICES"`
+	PropertiesKUBERNETESMASTERSKIPSSLVERIFICATION bool   `json:"KUBERNETES_MASTER_SKIP_SSL_VERIFICATION" toml:"KUBERNETES_MASTER_SKIP_SSL_VERIFICATION"`
+	PropertiesUSEDNS                              bool   `json:"USE_DNS" toml:"USE_DNS"`
+	PropertiesKUBERNETES_API_SERVER               string `json:"KUBERNETES_API_SERVER" toml:"KUBERNETES_API_SERVER"`
 }
 type Jmx struct {
 	RmiServerStart bool `toml:"rmi_server_start" json:"rmi_server_start"`

@@ -44,24 +44,32 @@ spec:
                       type: string
                     membership_scheme:
                       type: string
-                    properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION:
-                      type: boolean
-                    properties_KUBERNETES_NAMESPACE:
-                      type: string
-                    properties_KUBERNETES_SERVICES:
-                      type: string
-                    properties_USE_DNS:
-                      type: boolean
-                    properties_membershipSchemeClassName:
-                      type: string
+                    properties:
+                      properties:
+                        KUBERNETES_API_SERVER:
+                          type: string
+                        KUBERNETES_MASTER_SKIP_SSL_VERIFICATION:
+                          type: boolean
+                        KUBERNETES_NAMESPACE:
+                          type: string
+                        KUBERNETES_SERVICES:
+                          type: string
+                        USE_DNS:
+                          type: boolean
+                        membershipSchemeClassName:
+                          type: string
+                      required:
+                      - KUBERNETES_API_SERVER
+                      - KUBERNETES_MASTER_SKIP_SSL_VERIFICATION
+                      - KUBERNETES_NAMESPACE
+                      - KUBERNETES_SERVICES
+                      - USE_DNS
+                      - membershipSchemeClassName
+                      type: object
                   required:
                   - domain
                   - membership_scheme
-                  - properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION
-                  - properties_KUBERNETES_NAMESPACE
-                  - properties_KUBERNETES_SERVICES
-                  - properties_USE_DNS
-                  - properties_membershipSchemeClassName
+                  - properties
                   type: object
                 database:
                   properties:

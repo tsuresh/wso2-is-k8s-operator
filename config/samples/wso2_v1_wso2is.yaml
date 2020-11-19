@@ -42,10 +42,12 @@ spec:
       jmx:
         rmi_server_start: true
     clustering:
-      membership_scheme: multicast
+      membership_scheme: kubernetes
       domain: wso2.is.domain
-      properties_membershipSchemeClassName: org.wso2.carbon.membership.scheme.kubernetes.KubernetesMembershipScheme
-      properties_KUBERNETES_NAMESPACE: default
-      properties_KUBERNETES_SERVICES: wso2is-clustering-service
-      properties_KUBERNETES_MASTER_SKIP_SSL_VERIFICATION: true
-      properties_USE_DNS: false
+      properties:
+        membershipSchemeClassName: org.wso2.carbon.membership.scheme.kubernetes.KubernetesMembershipScheme
+        KUBERNETES_NAMESPACE: default
+        KUBERNETES_SERVICES: wso2is-service
+        KUBERNETES_MASTER_SKIP_SSL_VERIFICATION: true
+        USE_DNS: false
+        KUBERNETES_API_SERVER: https://kubernetes.default
