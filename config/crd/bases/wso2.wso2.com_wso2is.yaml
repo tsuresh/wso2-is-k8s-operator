@@ -126,6 +126,16 @@ spec:
                   - identityDb
                   - sharedDb
                   type: object
+                hazelcast:
+                  properties:
+                    hazelcastLoggingType:
+                      type: string
+                    hazelcastShutdownhookEnabled:
+                      type: boolean
+                  required:
+                  - hazelcastLoggingType
+                  - hazelcastShutdownhookEnabled
+                  type: object
                 host:
                   type: string
                 keystore:
@@ -207,6 +217,7 @@ spec:
               required:
               - clustering
               - database
+              - hazelcast
               - host
               - keystore
               - monitoring

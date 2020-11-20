@@ -41,6 +41,7 @@ type Configurations struct {
 	Keystore   Keystore   `json:"keystore" toml:"keystore"`
 	Clustering Clustering `json:"clustering" toml:"clustering"`
 	Monitoring Monitoring `json:"monitoring" toml:"monitoring"`
+	Hazelcast  Hazelcast  `json:"hazelcast" toml:"hazelcast"`
 }
 type Server struct {
 	Hostname string `json:"hostname" toml:"hostname"`
@@ -54,6 +55,10 @@ type SuperAdmin struct {
 }
 type UserStore struct {
 	Type string `json:"type" toml:"type"`
+}
+type Hazelcast struct {
+	ShutdownHookEnabled bool   `json:"hazelcastShutdownhookEnabled" toml:"hazelcast.shutdownhook.enabled"`
+	LoggingType         string `json:"hazelcastLoggingType" toml:"hazelcast.logging.type"`
 }
 type PoolOptions struct {
 	ValidationQuery string `json:"validationQuery" toml:"validationQuery"`

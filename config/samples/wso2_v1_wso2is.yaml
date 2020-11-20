@@ -50,4 +50,7 @@ spec:
         KUBERNETES_SERVICES: wso2is-service
         KUBERNETES_MASTER_SKIP_SSL_VERIFICATION: true
         USE_DNS: false
-        KUBERNETES_API_SERVER: https://kubernetes.default
+        KUBERNETES_API_SERVER: http://192.168.99.1:8001
+    hazelcast:
+      hazelcastShutdownhookEnabled: false
+      hazelcastLoggingType: log4j
