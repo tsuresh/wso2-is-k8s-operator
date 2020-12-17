@@ -43,21 +43,7 @@ type Configurations struct {
 	Clustering         Clustering           `json:"clustering" toml:"clustering"`
 	Monitoring         Monitoring           `json:"monitoring" toml:"monitoring"`
 	Hazelcast          Hazelcast            `json:"hazelcast" toml:"hazelcast"`
-	SecondaryUserstore []SecondaryUserstore `json:"userstores,omitempty"`
 }
-
-type SecondaryUserstore struct {
-	TypeId      string              `json:"typeId"`
-	Description string              `json:"description"`
-	Name        string              `json:"name"`
-	Properties  UserstoreProperties `json:"properties"`
-}
-
-type UserstoreProperties struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
 type Server struct {
 	Hostname string `json:"hostname" toml:"hostname"`
 	NodeIP   string `json:"nodeIp" toml:"node_ip"`

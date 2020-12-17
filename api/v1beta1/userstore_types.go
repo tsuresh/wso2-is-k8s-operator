@@ -27,9 +27,15 @@ import (
 type UserstoreSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	TypeId      string              `json:"typeId"`
+	Description string              `json:"description"`
+	Name        string              `json:"name"`
+	Properties  UserstoreProperties `json:"properties"`
+}
 
-	// Foo is an example field of Userstore. Edit Userstore_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+type UserstoreProperties struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 // UserstoreStatus defines the observed state of Userstore

@@ -9,6 +9,26 @@ rules:
 - apiGroups:
   - wso2.wso2.com
   resources:
+  - userstores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - wso2.wso2.com
+  resources:
+  - userstores/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - wso2.wso2.com
+  resources:
   - wso2is
   verbs:
   - create
