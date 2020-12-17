@@ -3,5 +3,11 @@ kind: Userstore
 metadata:
   name: userstore-sample
 spec:
-  # Add fields here
-  foo: bar
+  typeId: VW5pcXVlSURKREJDVXNlclN0b3JlTWFuYWdlcg
+  description: Secondary userstore for identity server
+  name: JDBS-SECONDARY
+  properties:
+    - name: connectionUrl
+      value: jdbc://mysdsadasdsada
+    - name: password
+      value: 1234

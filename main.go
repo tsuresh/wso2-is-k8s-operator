@@ -27,7 +27,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	wso2v1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
 	wso2v1beta1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
 	"github.com/tsuresh/wso2-is-k8s-operator/controllers"
 	// +kubebuilder:scaffold:imports
@@ -40,8 +39,6 @@ var (
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-
-	utilruntime.Must(wso2v1.AddToScheme(scheme))
 	utilruntime.Must(wso2v1beta1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }

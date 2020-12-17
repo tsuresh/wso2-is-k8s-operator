@@ -38,10 +38,14 @@ type UserstoreReconciler struct {
 // +kubebuilder:rbac:groups=wso2.wso2.com,resources=userstores/status,verbs=get;update;patch
 
 func (r *UserstoreReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("userstore", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("userstore", req.NamespacedName)
+
+	isInstance := wso2v1beta1.Wso2Is{}
+	usInstance := wso2v1beta1.UserStore{}
 
 	// your logic here
+
 
 	return ctrl.Result{}, nil
 }

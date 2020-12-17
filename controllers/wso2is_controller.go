@@ -35,7 +35,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	toml "github.com/BurntSushi/toml"
-	wso2v1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
+	wso2v1beta1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
 )
 
 // Wso2IsReconciler reconciles a Wso2Is object
@@ -54,7 +54,7 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// your logic here
 	// Fetch the WSO2IS instance
-	instance := wso2v1.Wso2Is{}
+	instance := wso2v1beta1.Wso2Is{}
 
 	// Check if WSO2 custom resource is present
 	err := r.Get(ctx, req.NamespacedName, &instance)
@@ -257,7 +257,7 @@ func getPodNames(pods []corev1.Pod) []string {
 }
 
 // addNamespace adds a new NameSpace
-func (r *Wso2IsReconciler) addNamespace(m wso2v1.Wso2Is) corev1.Namespace {
+func (r *Wso2IsReconciler) addNamespace(m wso2v1beta1.Wso2Is) corev1.Namespace {
 	namespace := corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   m.Namespace,
@@ -269,7 +269,7 @@ func (r *Wso2IsReconciler) addNamespace(m wso2v1.Wso2Is) corev1.Namespace {
 }
 
 // addServiceAccount adds a new ServiceAccount
-func (r *Wso2IsReconciler) addServiceAccount(m wso2v1.Wso2Is) *corev1.ServiceAccount {
+func (r *Wso2IsReconciler) addServiceAccount(m wso2v1beta1.Wso2Is) *corev1.ServiceAccount {
 	svc := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2svc-account",
@@ -281,7 +281,7 @@ func (r *Wso2IsReconciler) addServiceAccount(m wso2v1.Wso2Is) *corev1.ServiceAcc
 }
 
 // addConfigMap adds a new ConfigMap
-func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is, logger logr.Logger) *corev1.ConfigMap {
+func (r *Wso2IsReconciler) addConfigMap(m wso2v1beta1.Wso2Is, logger logr.Logger) *corev1.ConfigMap {
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "identity-server-conf",
@@ -295,7 +295,7 @@ func (r *Wso2IsReconciler) addConfigMap(m wso2v1.Wso2Is, logger logr.Logger) *co
 	return configMap
 }
 
-func getTomlConfig(spec wso2v1.Wso2IsSpec, logger logr.Logger) string {
+func getTomlConfig(spec wso2v1beta1.Wso2IsSpec, logger logr.Logger) string {
 	if len(spec.TomlConfig) == 0 {
 		buf := new(bytes.Buffer)
 		if err := toml.NewEncoder(buf).Encode(spec.Configurations); err != nil {
@@ -309,7 +309,7 @@ func getTomlConfig(spec wso2v1.Wso2IsSpec, logger logr.Logger) string {
 }
 
 // addNewIngress adds a new Ingress Controller
-func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
+func (r *Wso2IsReconciler) addNewIngress(m wso2v1beta1.Wso2Is) *v1beta1.Ingress {
 	ingress := &v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2is-ingress",
@@ -353,7 +353,7 @@ func (r *Wso2IsReconciler) addNewIngress(m wso2v1.Wso2Is) *v1beta1.Ingress {
 }
 
 // addNewService adds a new Service
-func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
+func (r *Wso2IsReconciler) addNewService(m wso2v1beta1.Wso2Is) *corev1.Service {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wso2is-service",
@@ -384,7 +384,7 @@ func (r *Wso2IsReconciler) addNewService(m wso2v1.Wso2Is) *corev1.Service {
 }
 
 // New deployment for WSO2IS
-func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployment {
+func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1beta1.Wso2Is) *appsv1.Deployment {
 	ls := labelsForWso2IS(m.Name)
 	replicas := m.Spec.Size
 	runasuser := int64(802)
@@ -519,6 +519,6 @@ func addUserStore() {
 
 func (r *Wso2IsReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&wso2v1.Wso2Is{}).
+		For(&wso2v1beta1.Wso2Is{}).
 		Complete(r)
 }
