@@ -27,7 +27,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	wso2v1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1"
+	wso2v1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
 	"github.com/tsuresh/wso2-is-k8s-operator/controllers"
 	// +kubebuilder:scaffold:imports
 )

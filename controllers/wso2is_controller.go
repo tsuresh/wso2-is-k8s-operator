@@ -35,7 +35,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	toml "github.com/BurntSushi/toml"
-	wso2v1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1"
+	wso2v1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
 )
 
 // Wso2IsReconciler reconciles a Wso2Is object
