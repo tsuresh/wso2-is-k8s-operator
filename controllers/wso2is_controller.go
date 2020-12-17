@@ -513,6 +513,10 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1.Wso2Is) *appsv1.Deployme
 	return dep
 }
 
+func addUserStore() {
+
+}
+
 func (r *Wso2IsReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&wso2v1.Wso2Is{}).

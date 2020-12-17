@@ -214,6 +214,32 @@ spec:
                   required:
                   - type
                   type: object
+                userstores:
+                  items:
+                    properties:
+                      description:
+                        type: string
+                      name:
+                        type: string
+                      properties:
+                        properties:
+                          name:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                        - name
+                        - value
+                        type: object
+                      typeId:
+                        type: string
+                    required:
+                    - description
+                    - name
+                    - properties
+                    - typeId
+                    type: object
+                  type: array
               required:
               - clustering
               - database
