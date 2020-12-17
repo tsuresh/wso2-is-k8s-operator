@@ -18,13 +18,20 @@ package controllers
 
 import (
 	"context"
-
 	"github.com/go-logr/logr"
+	"io/ioutil"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"net/http"
+	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strings"
 
 	wso2v1beta1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
+
+	b64 "encoding/base64"
+	"encoding/json"
 )
 
 // UserstoreReconciler reconciles a Userstore object
@@ -41,13 +48,68 @@ func (r *UserstoreReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 	log := r.Log.WithValues("userstore", req.NamespacedName)
 
-	isInstance := wso2v1beta1.Wso2Is{}
-	usInstance := wso2v1beta1.UserStore{}
+	//isInstance := wso2v1beta1.Wso2Is{}
+	usInstance := wso2v1beta1.Userstore{}
 
-	// your logic here
+	// Check if WSO2 custom resource is present
+	err := r.Get(ctx, req.NamespacedName, &usInstance)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// Request object not found, could have been deleted after reconcile request.
+			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
+			// Return and don't requeue
+			log.Info("UserStore resource not found. Ignoring since object must be deleted")
+			return ctrl.Result{}, nil
+		}
+		// Error reading the object - requeue the request.
+		log.Error(err, "Failed to get UserStore Instance")
+		return ctrl.Result{}, err
+	}
 
+	GenerateUserstore(usInstance, log)
 
 	return ctrl.Result{}, nil
+}
+
+func SpecToJson(spec wso2v1beta1.UserstoreSpec, log logr.Logger) string {
+	a, err := json.Marshal(spec)
+	if err != nil {
+		log.Error(err, "Failed to get parse json")
+	}
+	return string(a)
+}
+
+func GenerateUserstore(instance wso2v1beta1.Userstore, log logr.Logger) {
+	url := "https://" + os.Getenv("HOST_NAME") + "/api/server/v1/userstores"
+	method := "POST"
+
+	log.Info("Reading from: " + url)
+
+	payload := strings.NewReader(SpecToJson(instance.Spec, log))
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, payload)
+
+	if err != nil {
+		log.Error(err, "An error has occured")
+		return
+	}
+	encodedToken := b64.StdEncoding.EncodeToString([]byte(instance.Auth.Username + ":" + instance.Auth.Password))
+	req.Header.Add("Authorization", "Basic "+encodedToken)
+	req.Header.Add("Content-Type", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		log.Error(err, "Unable to send request")
+		return
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Error(err, "Unable to parse json input")
+		return
+	}
+	log.Info(string(body))
 }
 
 func (r *UserstoreReconciler) SetupWithManager(mgr ctrl.Manager) error {

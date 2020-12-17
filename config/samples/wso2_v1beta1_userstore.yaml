@@ -1,13 +1,20 @@
 apiVersion: wso2.wso2.com/v1beta1
 kind: Userstore
 metadata:
-  name: userstore-sample
+  name: userstore
+auth:
+    usernamea: admin
+    password: admin
 spec:
   typeId: VW5pcXVlSURKREJDVXNlclN0b3JlTWFuYWdlcg
   description: Secondary userstore for identity server
   name: JDBS-SECONDARY
   properties:
-    - name: connectionUrl
-      value: jdbc://mysdsadasdsada
+    - name: url
+      value: jdbc:mysql://192.168.99.1:3306/IS_SHARED_DB?autoReconnect=true&amp;useSSL=false
+    - name: userName
+      value: root
     - name: password
-      value: 1234
+      value: '1234'
+    - name: driverName
+      value: com.mysql.jdbc.Driver

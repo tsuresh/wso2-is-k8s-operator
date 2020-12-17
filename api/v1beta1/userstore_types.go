@@ -22,15 +22,19 @@ import (
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // UserstoreSpec defines the desired state of Userstore
 type UserstoreSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	TypeId      string              `json:"typeId"`
-	Description string              `json:"description"`
-	Name        string              `json:"name"`
-	Properties  UserstoreProperties `json:"properties"`
+	TypeId      string                `json:"typeId"`
+	Description string                `json:"description"`
+	Name        string                `json:"name"`
+	Properties  []UserstoreProperties `json:"properties"`
+}
+
+type Auth struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type UserstoreProperties struct {
@@ -54,6 +58,8 @@ type Userstore struct {
 
 	Spec   UserstoreSpec   `json:"spec,omitempty"`
 	Status UserstoreStatus `json:"status,omitempty"`
+
+	Auth Auth `json:"auth"`
 }
 
 // +kubebuilder:object:root=true

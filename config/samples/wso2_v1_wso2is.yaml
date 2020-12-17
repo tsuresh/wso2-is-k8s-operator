@@ -18,16 +18,16 @@ spec:
     database:
       identityDb:
         driver: com.mysql.jdbc.Driver
-        url: jdbc:mysql://192.168.99.1:3306/WSO2_IDENTITY_DB_NEW?autoReconnect=true&amp;useSSL=false
+        url: jdbc:mysql://192.168.99.1:3306/IS_IDENTITY_DB?autoReconnect=true&amp;useSSL=false
         username: root
-        password: r00T@123
+        password: '1234'
         pool_options:
           validationQuery: SELECT 1
       sharedDb:
         driver: com.mysql.jdbc.Driver
-        url: jdbc:mysql://192.168.99.1:3306/WSO2_SHARED_DB_NEW?autoReconnect=true&amp;useSSL=false
+        url: jdbc:mysql://192.168.99.1:3306/IS_SHARED_DB?autoReconnect=true&amp;useSSL=false
         username: root
-        password: r00T@123
+        password: '1234'
         pool_options:
           validationQuery: SELECT 1
     transport:

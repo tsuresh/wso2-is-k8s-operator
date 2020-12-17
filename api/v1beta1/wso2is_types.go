@@ -39,10 +39,10 @@ type Configurations struct {
 	Transport  Transport  `json:"transport" toml:"transport"`
 	//Datasource     []Datasource   `json:"datasource" toml:"datasource"`
 	//Authentication Authentication `json:"authentication" toml:"authentication"`
-	Keystore           Keystore             `json:"keystore" toml:"keystore"`
-	Clustering         Clustering           `json:"clustering" toml:"clustering"`
-	Monitoring         Monitoring           `json:"monitoring" toml:"monitoring"`
-	Hazelcast          Hazelcast            `json:"hazelcast" toml:"hazelcast"`
+	Keystore   Keystore   `json:"keystore" toml:"keystore"`
+	Clustering Clustering `json:"clustering" toml:"clustering"`
+	Monitoring Monitoring `json:"monitoring" toml:"monitoring"`
+	Hazelcast  Hazelcast  `json:"hazelcast" toml:"hazelcast"`
 }
 type Server struct {
 	Hostname string `json:"hostname" toml:"hostname"`

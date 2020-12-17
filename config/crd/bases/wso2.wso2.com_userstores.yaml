@@ -26,6 +26,16 @@ spec:
             of an object. Servers should convert recognized schemas to the latest
             internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
           type: string
+        auth:
+          properties:
+            password:
+              type: string
+            username:
+              type: string
+          required:
+          - password
+          - username
+          type: object
         kind:
           description: 'Kind is a string value representing the REST resource this
             object represents. Servers may infer this from the endpoint the client
@@ -34,22 +44,27 @@ spec:
         metadata:
           type: object
         spec:
-          description: UserstoreSpec defines the desired state of Userstore
+          description: 'EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN! NOTE:
+            json tags are required.  Any new fields you add must have json tags for
+            the fields to be serialized. UserstoreSpec defines the desired state of
+            Userstore'
           properties:
             description:
               type: string
             name:
               type: string
             properties:
-              properties:
-                name:
-                  type: string
-                value:
-                  type: string
-              required:
-              - name
-              - value
-              type: object
+              items:
+                properties:
+                  name:
+                    type: string
+                  value:
+                    type: string
+                required:
+                - name
+                - value
+                type: object
+              type: array
             typeId:
               description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
                 Important: Run "make" to regenerate code after modifying this file'
@@ -63,6 +78,8 @@ spec:
         status:
           description: UserstoreStatus defines the observed state of Userstore
           type: object
+      required:
+      - auth
       type: object
   version: v1beta1
   versions:
