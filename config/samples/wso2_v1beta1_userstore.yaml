@@ -1,0 +1,7 @@
+apiVersion: wso2.wso2.com/v1beta1
+kind: Userstore
+metadata:
+  name: userstore-sample
+spec:
+  # Add fields here
+  foo: bar

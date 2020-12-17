@@ -28,6 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	wso2v1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
+	wso2v1beta1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
 	"github.com/tsuresh/wso2-is-k8s-operator/controllers"
 	// +kubebuilder:scaffold:imports
 )
@@ -41,6 +42,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(wso2v1.AddToScheme(scheme))
+	utilruntime.Must(wso2v1beta1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -74,6 +76,14 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Wso2Is")
+		os.Exit(1)
+	}
+	if err = (&controllers.UserstoreReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("Userstore"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Userstore")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder
