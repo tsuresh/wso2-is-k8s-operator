@@ -28,11 +28,14 @@ spec:
           type: string
         auth:
           properties:
+            host:
+              type: string
             password:
               type: string
             username:
               type: string
           required:
+          - host
           - password
           - username
           type: object

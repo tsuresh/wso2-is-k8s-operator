@@ -18,12 +18,12 @@ package controllers
 
 import (
 	"context"
+	"crypto/tls"
 	"github.com/go-logr/logr"
 	"io/ioutil"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"net/http"
-	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"strings"
@@ -80,7 +80,7 @@ func SpecToJson(spec wso2v1beta1.UserstoreSpec, log logr.Logger) string {
 }
 
 func GenerateUserstore(instance wso2v1beta1.Userstore, log logr.Logger) {
-	url := "https://" + os.Getenv("HOST_NAME") + "/api/server/v1/userstores"
+	url := "https://" + instance.Auth.Host + "/api/server/v1/userstores"
 	method := "POST"
 
 	log.Info("Reading from: " + url)
@@ -88,6 +88,7 @@ func GenerateUserstore(instance wso2v1beta1.Userstore, log logr.Logger) {
 	payload := strings.NewReader(SpecToJson(instance.Spec, log))
 
 	client := &http.Client{}
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
