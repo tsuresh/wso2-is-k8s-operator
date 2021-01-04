@@ -19,23 +19,22 @@ package controllers
 import (
 	"bytes"
 	"context"
+	toml "github.com/BurntSushi/toml"
+	"github.com/go-logr/logr"
+	wso2v1beta1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
 	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"log"
 	"reflect"
-
-	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	toml "github.com/BurntSushi/toml"
-	wso2v1beta1 "github.com/tsuresh/wso2-is-k8s-operator/api/v1beta1"
 )
 
 // Wso2IsReconciler reconciles a Wso2Is object
@@ -107,6 +106,27 @@ func (r *Wso2IsReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			log.Info("Successfully created new ServiceAccount", "ServiceAccount.Namespace", svc.Namespace, "ServiceAccount.Name", svc.Name)
 		}
 		// ServiceAccount created successfully - return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		log.Error(err, "Failed to get ServiceAccount")
+		return ctrl.Result{}, err
+	}
+
+	// Add new persistant volume claim
+	pvcFound := &corev1.PersistentVolumeClaim{}
+	err = r.Get(ctx, types.NamespacedName{Name: "user-store-pv-claim", Namespace: instance.Namespace}, pvcFound)
+	if err != nil && errors.IsNotFound(err) {
+		// Define a new deployment
+		pvc := r.addPersistentVolumeClaim(instance)
+		log.Info("Creating a new PersistentVolumeClaim", "PersistentVolumeClaim.Namespace", pvc.Namespace, "PersistentVolumeClaim.Name", pvc.Name)
+		err = r.Create(ctx, pvc)
+		if err != nil {
+			log.Error(err, "Failed to create new PersistentVolumeClaim", "PersistentVolumeClaim.Namespace", pvc.Namespace, "PersistentVolumeClaim.Name", pvc.Name)
+			return ctrl.Result{}, err
+		} else {
+			log.Info("Successfully created new PersistentVolumeClaim", "PersistentVolumeClaim.Namespace", pvc.Namespace, "PersistentVolumeClaim.Name", pvc.Name)
+		}
+		// PersistentVolumeClaim created successfully - return and requeue
 		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
 		log.Error(err, "Failed to get ServiceAccount")
@@ -280,6 +300,28 @@ func (r *Wso2IsReconciler) addServiceAccount(m wso2v1beta1.Wso2Is) *corev1.Servi
 	return svc
 }
 
+// add adds a new PersistentVolume
+func (r *Wso2IsReconciler) addPersistentVolumeClaim(m wso2v1beta1.Wso2Is) *corev1.PersistentVolumeClaim {
+	pvc := &corev1.PersistentVolumeClaim{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "user-store-pv-claim",
+			Namespace: m.Namespace,
+		},
+		Spec: corev1.PersistentVolumeClaimSpec{
+			AccessModes: []corev1.PersistentVolumeAccessMode{
+				"ReadWriteMany",
+			},
+			Resources: corev1.ResourceRequirements{
+				Requests: corev1.ResourceList{
+					corev1.ResourceStorage: resource.MustParse("1Gi"),
+				},
+			},
+		},
+	}
+	ctrl.SetControllerReference(&m, pvc, r.Scheme)
+	return pvc
+}
+
 // addConfigMap adds a new ConfigMap
 func (r *Wso2IsReconciler) addConfigMap(m wso2v1beta1.Wso2Is, logger logr.Logger) *corev1.ConfigMap {
 	configMap := &corev1.ConfigMap{
@@ -388,6 +430,7 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1beta1.Wso2Is) *appsv1.Dep
 	ls := labelsForWso2IS(m.Name)
 	replicas := m.Spec.Size
 	runasuser := int64(802)
+
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      m.Name,
@@ -403,16 +446,26 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1beta1.Wso2Is) *appsv1.Dep
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
-					Volumes: []corev1.Volume{{
-						Name: "identity-server-conf",
-						VolumeSource: corev1.VolumeSource{
-							ConfigMap: &corev1.ConfigMapVolumeSource{
-								LocalObjectReference: corev1.LocalObjectReference{
-									Name: "identity-server-conf",
+					Volumes: []corev1.Volume{
+						{
+							Name: "user-store-persistent-storage",
+							VolumeSource: corev1.VolumeSource{
+								PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+									ClaimName: "user-store-pv-claim",
 								},
 							},
 						},
-					}},
+						{
+							Name: "identity-server-conf",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: "identity-server-conf",
+									},
+								},
+							},
+						},
+					},
 					Containers: []corev1.Container{{
 						Name:  "wso2is",
 						Image: "sureshmichael/wso2-is-5.11.0:rc1",
@@ -446,11 +499,17 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1beta1.Wso2Is) *appsv1.Dep
 							},
 						},
 						*/
-						VolumeMounts: []corev1.VolumeMount{{
-							Name:        "identity-server-conf",
-							MountPath:   "/home/wso2carbon/wso2-config-volume/repository/conf/deployment.toml",
-							SubPathExpr: "deployment.toml",
-						}},
+						VolumeMounts: []corev1.VolumeMount{
+							{
+								Name:      "user-store-persistent-storage",
+								MountPath: "/home/wso2carbon/wso2is-5.11.0/repository/deployment/server/userstores",
+							},
+							{
+								Name:        "identity-server-conf",
+								MountPath:   "/home/wso2carbon/wso2-config-volume/repository/conf/deployment.toml",
+								SubPathExpr: "deployment.toml",
+							},
+						},
 						LivenessProbe: &corev1.Probe{
 							Handler: corev1.Handler{
 								Exec: &corev1.ExecAction{
@@ -511,10 +570,6 @@ func (r *Wso2IsReconciler) deploymentForWso2Is(m wso2v1beta1.Wso2Is) *appsv1.Dep
 	// Set WSO2IS instance as the owner and controller
 	ctrl.SetControllerReference(&m, dep, r.Scheme)
 	return dep
-}
-
-func addUserStore() {
-
 }
 
 func (r *Wso2IsReconciler) SetupWithManager(mgr ctrl.Manager) error {
