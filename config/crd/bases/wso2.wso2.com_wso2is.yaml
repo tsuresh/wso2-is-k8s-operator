@@ -8,6 +8,28 @@ metadata:
   creationTimestamp: null
   name: wso2is.wso2.wso2.com
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.serviceName
+    name: Service Name
+    type: string
+  - JSONPath: .status.ingressName
+    name: Ingress Name
+    type: string
+  - JSONPath: .status.ingressHostname
+    name: Ingress Hostname
+    type: string
+  - JSONPath: .status.ingressIP
+    name: Ingress IP
+    type: string
+  - JSONPath: .spec.replicas
+    name: Desired Replicas
+    type: string
+  - JSONPath: .status.replicas
+    name: Current Replicas
+    type: string
+  - JSONPath: .spec.configurations.host
+    name: Host Name
+    type: string
   group: wso2.wso2.com
   names:
     kind: Wso2Is
@@ -237,6 +259,12 @@ spec:
         status:
           description: Wso2IsStatus defines the observed state of Wso2Is
           properties:
+            ingressHostname:
+              type: string
+            ingressIP:
+              type: string
+            ingressName:
+              type: string
             nodes:
               description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
                 of cluster Important: Run "make" to regenerate code after modifying
@@ -244,8 +272,17 @@ spec:
               items:
                 type: string
               type: array
+            replicas:
+              type: string
+            serviceName:
+              type: string
           required:
+          - ingressHostname
+          - ingressIP
+          - ingressName
           - nodes
+          - replicas
+          - serviceName
           type: object
       type: object
   version: v1beta1
